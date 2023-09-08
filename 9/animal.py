@@ -10,7 +10,7 @@ class Animal(LivingThing):
         self.current_food = max_food
 
 
-    def move(self, width, height, list_of_animals):
+    def move(self, width, height, list_of_animals, list_of_plant_positions):
         self.posx += randint(-1, 1)
         self.posy += randint(-1, 1)
         if not 0 <= self.posx < width - 1:
