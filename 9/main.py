@@ -1,8 +1,6 @@
 ﻿# Importerar modulen tkinter och klassen Dummy
 from tkinter import *
-from dummy import Dummy
 from plant import Plant
-from animal import Animal
 from sheep import Sheep
 from random import *
 
@@ -27,18 +25,17 @@ for i in range(width):
 
 
 # Skapar en lista av flera instanser av Dummy Klassen
-# list_of_objects = [Dummy(fonster) for i in range(10)]
 list_of_plants = [Plant(fonster, width, height) for i in range(10)]
 list_of_animals = [Sheep(fonster, width, height, 35) for i in range(10)]
 
 list_of_plant_positions = [(object.posx, object.posy) for object in list_of_plants]
 
-
 # Kör update()-funktionen för alla instanser av Dummy Klassen i listan.
 def update_all_objects():
     global list_of_animals
-    [
-        object.move(width, height, list_of_animals, list_of_plant_positions)
+    global list_of_plant_positions
+    list_of_animals, list_of_plant_positions = [
+        object.move(width, height, list_of_animals, list_of_plant_positions, "plant")
         for object in list_of_animals
     ]
     fonster.after(time_between_updates, update_all_objects)

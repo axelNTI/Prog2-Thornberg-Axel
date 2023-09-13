@@ -3,9 +3,8 @@ import random
 
 
 class Dummy:
-
     def __init__(self, fonster):
-        self.photo = PhotoImage(file= r"9/dummy.gif")
+        self.photo = PhotoImage(file=r"9/dummy.gif")
         self.label = Label(fonster, image=self.photo, borderwidth=0)
         self.posx = random.randint(0, 14)
         self.posy = random.randint(0, 14)
