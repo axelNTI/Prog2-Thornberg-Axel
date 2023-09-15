@@ -30,6 +30,7 @@ list_of_animals = [Sheep(fonster, width, height, 35) for i in range(10)]
 
 list_of_plant_positions = [(object.posx, object.posy) for object in list_of_plants]
 
+
 # Kör update()-funktionen för alla instanser av Dummy Klassen i listan.
 def update_all_objects():
     global list_of_animals
