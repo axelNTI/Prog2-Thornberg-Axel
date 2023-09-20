@@ -2,6 +2,7 @@
 from tkinter import *
 from plant import Plant
 from sheep import Sheep
+from wolf import Wolf
 from random import *
 
 # Definerar storleken på skärmen samt hur ofta den uppdateras
@@ -25,20 +26,36 @@ for i in range(width):
 
 
 # Skapar en lista av flera instanser av Dummy Klassen
-list_of_plants = [Plant(fonster, width, height) for i in range(10)]
-list_of_animals = [Sheep(fonster, width, height, 35) for i in range(10)]
+list_of_plants = [Plant(fonster, width, height) for i in range(1)]
+list_of_sheep = [Sheep(fonster, width, height, 35) for i in range(1)]
+list_of_wolves = [Wolf(fonster, width, height, 35) for i in range(1)]
 
 list_of_plant_positions = [(object.posx, object.posy) for object in list_of_plants]
+list_of_sheep_positions = [(object.posx, object.posy) for object in list_of_sheep]
 
 
 # Kör update()-funktionen för alla instanser av Dummy Klassen i listan.
 def update_all_objects():
-    global list_of_animals
+    global list_of_sheep
+    global list_of_sheep_positions
     global list_of_plant_positions
-    list_of_animals, list_of_plant_positions = [
-        object.move(width, height, list_of_animals, list_of_plant_positions, "plant")
-        for object in list_of_animals
-    ]
+    global list_of_plants
+    global list_of_wolves
+    for object in list_of_sheep:
+        list_of_sheep, list_of_plant_positions = object.move(
+            width, height, list_of_sheep, list_of_plant_positions
+        )
+    for object in list_of_plants:
+        if (object.posx, object.posy) not in list_of_plant_positions:
+            object.label.destroy()
+    for object in list_of_wolves:
+        list_of_wolves, list_of_sheep_positions = object.move(
+            width, height, list_of_wolves, list_of_sheep_positions
+        )
+    for object in list_of_sheep:
+        if (object.posx, object.posy) not in list_of_sheep_positions:
+            object.label.destroy()
+
     fonster.after(time_between_updates, update_all_objects)
 
 

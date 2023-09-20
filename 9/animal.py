@@ -9,7 +9,7 @@ class Animal(LivingThing):
         self.max_food = max_food
         self.current_food = max_food
 
-    def move(self, width, height, list_of_animals, list_of_plant_positions, food):
+    def move(self, width, height, list_of_animals, list_of_positions):
         self.posx += randint(-1, 1)
         self.posy += randint(-1, 1)
         if not 0 <= self.posx < width - 1:
@@ -18,13 +18,12 @@ class Animal(LivingThing):
             self.posy = min([0, height - 1], key=lambda y: abs(y - self.posy))
         self.label.grid(column=self.posx, row=self.posy)
         self.current_food -= 1
-        if food == "plant":
-            for i in list_of_plant_positions:
-                if (self.posx, self.posy) == i:
-                    list_of_plant_positions.remove(i)
-                    list
-        print(self.current_food)
+        for i in list_of_positions:
+            if (self.posx, self.posy) == i:
+                self.current_food = self.max_food
+                list_of_positions.remove(i)
+                break
         if self.current_food <= 0:
             list_of_animals.remove(self)
             self.label.destroy()
-        return (list_of_animals, list_of_plant_positions)
+        return list_of_animals, list_of_positions
