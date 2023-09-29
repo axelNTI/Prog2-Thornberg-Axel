@@ -25,35 +25,24 @@ def pygameRun() -> None:
     )
     pygame.display.set_caption("Interstellar Exploration")
     # pygame.display.set_icon(Icon_name)
-    list_of_colours = (
-        (255, 210, 125),
-        (255, 163, 113),
-        (166, 168, 255),
-        (255, 250, 134),
-        (168, 123, 255),
-    )
     radius = 15
-    list_of_systems = []
-    for i in range(50):
-        list_of_systems.append(
-            System(
-                width=infoObject.current_w,
-                height=infoObject.current_h,
-                colour=random.choice(list_of_colours),
-                radius=radius,
-                list_of_systems=list_of_systems,
-            )
+    system_count = 1
+    list_of_systems = [System() for i in range(system_count)]
+    list_of_coordinates = []
+    for posx in range(radius, infoObject.current_w - radius):
+        for posy in range(radius, infoObject.current_h - radius):
+            list_of_coordinates.append((posx, posy))
+    for object in list_of_systems:
+        list_of_coordinates = object.set_position(
+            radius=radius, list_of_coordinates=list_of_coordinates
         )
     while True:
-        # display_window.fill(
-        #     (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-        # )
         display_window.fill((5, 5, 25))
-        for obj in list_of_systems:
+        for object in list_of_systems:
             pygame.draw.circle(
                 surface=display_window,
-                color=obj.colour,
-                center=(obj.posx, obj.posy),
+                color=object.colour,
+                center=(object.posx, object.posy),
                 radius=radius,
             )
         for event in pygame.event.get():
