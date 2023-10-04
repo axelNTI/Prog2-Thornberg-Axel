@@ -12,11 +12,8 @@ list_of_colours = (
 class System:
     def __init__(self) -> None:
         self.colour = random.choice(list_of_colours)
-        
-    
+
     def set_position(self, radius, list_of_coordinates) -> list:
         self.posx, self.posy = random.choice(list_of_coordinates)
-        for (x, y) in list_of_coordinates:
-            if ((self.posx - x)**2 + (self.posy - y)**2)**(0.5) < 3*radius:
-                list_of_coordinates.remove((x, y))
+        list_of_coordinates.remove((self.posx, self.posy))
         return list_of_coordinates
