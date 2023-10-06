@@ -2,6 +2,7 @@ import pygame
 import random
 from classes import System
 
+
 # Personal links/comments for later:
 # https://www.pygame.org/docs/ref/display.html#pygame.display.Info
 # https://stackoverflow.com/questions/35617246/setting-a-fixed-fps-in-pygame-python-3
@@ -15,6 +16,8 @@ from classes import System
 # Borderless Windowed:
 # display_window = pygame.display.set_mode((infoObject9.current_w, infoObject.current_h))
 #
+def intround(flo) -> int:
+    return int(round(flo, 0))
 
 
 def pygameSetup() -> None:
@@ -28,13 +31,10 @@ def pygameSetup() -> None:
     pygame.display.set_caption("Interstellar Exploration")
     # pygame.display.set_icon(Icon_name)
     list_of_systems = [System() for i in range(SYSTEM_COUNT)]
-    list_of_coordinates = [
-        (
-            random.randint(RADIUS, infoObject.current_w - RADIUS),
-            random.randint(RADIUS, infoObject.current_h - RADIUS),
-        )
-        for i in range(SYSTEM_COUNT)
-    ]
+    list_of_coordinates = []
+    for x in range(RADIUS, infoObject.current_w - RADIUS, intround(2.5 * RADIUS)):
+        for y in range(RADIUS, infoObject.current_h - RADIUS, intround(2.5 * RADIUS)):
+            list_of_coordinates.append((x, y))
     for object in list_of_systems:
         list_of_coordinates = object.set_position(
             radius=RADIUS, list_of_coordinates=list_of_coordinates
@@ -61,6 +61,6 @@ def pygameRun(display_window, list_of_systems, RADIUS, clock) -> None:
                     return
         pygame.display.update()
         clock.tick(60)
-
+    
 
 pygameSetup()
