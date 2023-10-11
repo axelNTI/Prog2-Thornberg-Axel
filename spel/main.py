@@ -1,5 +1,6 @@
 import pygame
 import random
+import itertools
 from classes import System
 
 
@@ -16,34 +17,64 @@ from classes import System
 # Borderless Windowed:
 # display_window = pygame.display.set_mode((infoObject9.current_w, infoObject.current_h))
 #
-def intround(flo) -> int:
-    return int(round(flo, 0))
+def intround(value) -> int:
+    return int(round(value, 0))
+
+
+def create_systems(SYSTEM_COUNT, SYSTEM_RADIUS, width, height) -> list:
+    list_of_systems = [System() for i in range(SYSTEM_COUNT)]
+    positions = random.sample(
+        list(
+            itertools.product(
+                [
+                    x
+                    for x in range(
+                        SYSTEM_RADIUS,
+                        width - SYSTEM_RADIUS,
+                        intround(2.5 * SYSTEM_RADIUS),
+                    )
+                ],
+                [
+                    y
+                    for y in range(
+                        SYSTEM_RADIUS,
+                        height - SYSTEM_RADIUS,
+                        intround(2.5 * SYSTEM_RADIUS),
+                    )
+                ],
+            )
+        ),
+        k=SYSTEM_COUNT,
+    )
+    [
+        object.set_position(position=positions[list_of_systems.index(object)])
+        for object in list_of_systems
+    ]
+    return list_of_systems
+
+
+def create_hyperlanes(list_of_systems) -> list:
+    return
 
 
 def pygameSetup() -> None:
-    RADIUS = 15
+    SYSTEM_RADIUS = 15
     SYSTEM_COUNT = 25
     pygame.init()
     infoObject = pygame.display.Info()
+    width, height = infoObject.current_w, infoObject.current_h
     display_window = pygame.display.set_mode(
         (infoObject.current_w, infoObject.current_h)
     )
     pygame.display.set_caption("Interstellar Exploration")
     # pygame.display.set_icon(Icon_name)
-    list_of_systems = [System() for i in range(SYSTEM_COUNT)]
-    list_of_coordinates = []
-    for x in range(RADIUS, infoObject.current_w - RADIUS, intround(2.5 * RADIUS)):
-        for y in range(RADIUS, infoObject.current_h - RADIUS, intround(2.5 * RADIUS)):
-            list_of_coordinates.append((x, y))
-    for object in list_of_systems:
-        list_of_coordinates = object.set_position(
-            radius=RADIUS, list_of_coordinates=list_of_coordinates
-        )
     clock = pygame.time.Clock()
-    pygameRun(display_window, list_of_systems, RADIUS, clock)
+    list_of_systems = create_systems(SYSTEM_COUNT, SYSTEM_RADIUS, width, height)
+    list_of_hyperlanes = create_hyperlanes(list_of_systems)
+    pygameRun(display_window, list_of_systems, SYSTEM_RADIUS, clock)
 
 
-def pygameRun(display_window, list_of_systems, RADIUS, clock) -> None:
+def pygameRun(display_window, list_of_systems, SYSTEM_RADIUS, clock) -> None:
     while True:
         display_window.fill((5, 5, 25))
         for object in list_of_systems:
@@ -51,7 +82,7 @@ def pygameRun(display_window, list_of_systems, RADIUS, clock) -> None:
                 surface=display_window,
                 color=object.colour,
                 center=(object.posx, object.posy),
-                radius=RADIUS,
+                radius=SYSTEM_RADIUS,
             )
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -61,6 +92,6 @@ def pygameRun(display_window, list_of_systems, RADIUS, clock) -> None:
                     return
         pygame.display.update()
         clock.tick(60)
-    
+
 
 pygameSetup()
