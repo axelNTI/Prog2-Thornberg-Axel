@@ -10,9 +10,15 @@ list_of_colours = (
 
 
 class System:
-    def __init__(self) -> None:
+    def __init__(self, position) -> None:
         self.colour = random.choice(list_of_colours)
-
-    def set_position(self, position) -> list:
         self.posx, self.posy = position
+        self.hyperlanes = []
+    
+    def create_hyperlanes(self, startpos, endpos):
+        self.hyperlanes.append([])
 
+
+class Hyperlane:
+    def __init__(self) -> None:
+        pass

@@ -22,7 +22,6 @@ def intround(value) -> int:
 
 
 def create_systems(SYSTEM_COUNT, SYSTEM_RADIUS, width, height) -> list:
-    list_of_systems = [System() for i in range(SYSTEM_COUNT)]
     positions = random.sample(
         list(
             itertools.product(
@@ -46,15 +45,14 @@ def create_systems(SYSTEM_COUNT, SYSTEM_RADIUS, width, height) -> list:
         ),
         k=SYSTEM_COUNT,
     )
-    [
-        object.set_position(position=positions[list_of_systems.index(object)])
-        for object in list_of_systems
-    ]
+    list_of_systems = [System(position=positions[i]) for i in range(SYSTEM_COUNT)]
     return list_of_systems
 
 
 def create_hyperlanes(list_of_systems) -> list:
-    return
+    for object in list_of_systems:
+        for i in range(random.randint(2, 4) - len(object.hyperlanes)):
+            pass
 
 
 def pygameSetup() -> None:
