@@ -13,12 +13,17 @@ class System:
     def __init__(self, position) -> None:
         self.colour = random.choice(list_of_colours)
         self.posx, self.posy = position
+        self.position = position
         self.hyperlanes = []
-    
-    def create_hyperlanes(self, startpos, endpos):
-        self.hyperlanes.append([])
+
+    def create_hyperlane(self, startpos, endpos, object) -> None:
+        new_hyperlane = Hyperlane(startpos, endpos, self, object)
+        self.hyperlanes.append(new_hyperlane)
+        object.hyperlanes.append(new_hyperlane)
 
 
 class Hyperlane:
-    def __init__(self) -> None:
-        pass
+    def __init__(self, startpos, endpos, startstar, endstar) -> None:
+        self.startpos = startpos
+        self.endpos = endpos
+        self.stars = startstar, endstar
