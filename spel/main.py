@@ -21,6 +21,16 @@ def intround(value) -> int:
     return int(round(value, 0))
 
 
+# https://stackoverflow.com/questions/3838329/how-can-i-check-if-two-segments-intersect
+def ccw(A, B, C):
+    return (C.posy - A.posy) * (B.posx - A.posx) > (B.posy - A.posy) * (C.posx - A.posx)
+
+
+# Return true if line segments AB and CD intersect
+def intersect(A, B, C, D):
+    return ccw(A, C, D) != ccw(B, C, D) and ccw(A, B, C) != ccw(A, B, D)
+
+
 def create_systems(SYSTEM_COUNT, SYSTEM_RADIUS, WIDTH, HEIGHT) -> list:
     positions = random.sample(
         list(
@@ -50,30 +60,34 @@ def create_systems(SYSTEM_COUNT, SYSTEM_RADIUS, WIDTH, HEIGHT) -> list:
 
 
 def create_hyperlanes(list_of_systems) -> list:
-    for object in list_of_systems:
-        dict_of_distances = dict(
-            sorted(
-                {
-                    object2: (
-                        (object2.posx - object.posx) ** 2
-                        + (object2.posy - object.posy) ** 2
-                    )
-                    ** 0.5
-                    for object2 in list_of_systems
-                    if object != object2
-                }.items(),
-                key=lambda item: item[1],
-            )
+    for object_i in list_of_systems:
+        object_list = list(
+            dict(
+                sorted(
+                    {
+                        object_j: (
+                            (object_j.posx - object_i.posx) ** 2
+                            + (object_j.posy - object_i.posy) ** 2
+                        )
+                        ** 0.5
+                        for object_j in list_of_systems
+                        if object_i != object_j
+                    }.items(),
+                    key=lambda item: item[1],
+                )
+            ).keys()
         )
         i = 0
-        hyperlane_amount = random.randint(2, 4)
-        object_list = list(dict_of_distances.keys())
-        while hyperlane_amount > len(object.hyperlanes):
-            object2 = object_list[i]
-            if object not in object2.hyperlanes and len(object2.hyperlanes) < 5:
-                object.create_hyperlane(object.position, object2.position, object2)
-            if i == len(object_list) - 1:
-                break
+        hyperlane_amount = random.randint(1, 4)
+        while hyperlane_amount > len(object_i.hyperlanes) and i < len(object_list):
+            object_j = object_list[i]
+            if (
+                object_i not in object_j.connected_systems
+                and len(object_j.hyperlanes) < 5
+            ):
+                object_i.create_hyperlane(
+                    object_i.position, object_j.position, object_j
+                )
             i += 1
 
     list_of_hyperlanes = list(
@@ -85,12 +99,12 @@ def create_hyperlanes(list_of_systems) -> list:
             ]
         )
     )
-    return list_of_systems, list_of_hyperlanes
+    return list_of_hyperlanes
 
 
 def pygameSetup() -> None:
     SYSTEM_RADIUS = 15
-    SYSTEM_COUNT = 50
+    SYSTEM_COUNT = 75
     FRAME_RATE = 60
     pygame.init()
     infoObject = pygame.display.Info()
@@ -102,10 +116,11 @@ def pygameSetup() -> None:
     # pygame.display.set_icon(Icon_name)
     clock = pygame.time.Clock()
     list_of_systems = create_systems(SYSTEM_COUNT, SYSTEM_RADIUS, WIDTH, HEIGHT)
-    list_of_systems, list_of_hyperlanes = create_hyperlanes(list_of_systems)
+    list_of_hyperlanes = create_hyperlanes(list_of_systems)
     objects = list_of_systems, list_of_hyperlanes
     constants = display_window, SYSTEM_RADIUS, clock, FRAME_RATE
     pygameRun(objects, constants)
+    pygame.quit()
 
 
 def pygameRun(objects, constants) -> None:
