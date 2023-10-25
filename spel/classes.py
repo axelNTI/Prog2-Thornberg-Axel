@@ -3,24 +3,26 @@ import random
 
 class System:
     def __init__(self, position) -> None:
-        self.colour = random.choice((
-            (255, 210, 125),
-            (255, 163, 113),
-            (166, 168, 255),
-            (255, 250, 134),
-            (168, 123, 255),
-        ))
+        self.colour = random.choice(
+            (
+                (255, 210, 125),
+                (255, 163, 113),
+                (166, 168, 255),
+                (255, 250, 134),
+                (168, 123, 255),
+            )
+        )
         self.posx, self.posy = position
         self.position = position
         self.hyperlanes = []
-        self.connected_systems = []
+        self.neighboring_systems = []
 
-    def create_hyperlane(self, startpos, endpos, object) -> None:
-        new_hyperlane = Hyperlane(startpos, endpos, self, object)
+    def create_hyperlane(self, startpos, endpos, system) -> None:
+        new_hyperlane = Hyperlane(startpos, endpos, self, system)
         self.hyperlanes.append(new_hyperlane)
-        self.connected_systems.append(object)
-        object.connected_systems.append(self)
-        object.hyperlanes.append(new_hyperlane)
+        self.neighboring_systems.append(system)
+        system.neighboring_systems.append(self)
+        system.hyperlanes.append(new_hyperlane)
 
 
 class Hyperlane:
