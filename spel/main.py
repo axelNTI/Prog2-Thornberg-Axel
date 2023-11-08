@@ -52,21 +52,6 @@ def create_systems(SYSTEM_COUNT, SYSTEM_RADIUS, WIDTH, HEIGHT) -> list:
 
 
 def create_hyperlanes(list_of_systems) -> list:
-    def get_hyperlane_groups(system) -> list:
-        for neighbor in system.neighboring_systems:
-            get_hyperlane_groups(neighbor)
-
-    def duplicate_removal() -> list:
-        return list(
-            dict.fromkeys(
-                [
-                    j
-                    for sub in [object.hyperlanes for object in list_of_systems]
-                    for j in sub
-                ]
-            )
-        )
-
     for object_i in list_of_systems:
         list_of_systems_sorted = list(
             dict(
@@ -98,18 +83,72 @@ def create_hyperlanes(list_of_systems) -> list:
                     object_i.position, object_j.position, object_j
                 )
             i += 1
-    list_of_clusters = []
-    while len([j for sub in list_of_clusters for j in sub]) != len(list_of_systems):
-        starting_system = random.choice(list_of_systems)
-        list_of_clusters.append(starting_system)
-        list_of_clusters = get_hyperlane_groups(starting_system)
-
-    return duplicate_removal()
+    return list(
+        dict.fromkeys(
+            [
+                j
+                for sub in [object.hyperlanes for object in list_of_systems]
+                for j in sub
+            ]
+        )
+    )
 
 
 def game() -> None:
-    def pygameRun() -> None:
-        while True:
+    SYSTEM_RADIUS = 15
+    SYSTEM_COUNT = 65
+    FRAME_RATE = 60
+    star_view = False
+    pygame.init()
+    infoObject = pygame.display.Info()
+    WIDTH, HEIGHT = infoObject.current_w, infoObject.current_h
+    display_window = pygame.display.set_mode((WIDTH, HEIGHT))
+    pygame.display.set_caption("Interstellar Exploration")
+    # pygame.display.set_icon(Icon_name)
+    clock = pygame.time.Clock()
+    list_of_systems = create_systems(SYSTEM_COUNT, SYSTEM_RADIUS, WIDTH, HEIGHT)
+    list_of_hyperlanes = create_hyperlanes(list_of_systems)
+    current_system = random.choice(list_of_systems)
+    print(current_system.colour)
+    current_system.generate(current_system.colour)
+    values = (
+        display_window,
+        list_of_hyperlanes,
+        SYSTEM_RADIUS,
+        list_of_systems,
+        clock,
+        FRAME_RATE,
+        star_view,
+        current_system,
+    )
+    pygameRun(values)
+    pygame.quit()
+
+
+def pygameRun(values) -> None:
+    (
+        display_window,
+        list_of_hyperlanes,
+        SYSTEM_RADIUS,
+        list_of_systems,
+        clock,
+        FRAME_RATE,
+        star_view,
+        current_system,
+    ) = values
+    while True:
+        if star_view:
+            display_window.fill((5, 5, 25))
+            [
+                pygame.draw.circle(
+                    surface=display_window,
+                    color=object.colour,
+                    center=(object.posx, object.posy),
+                    radius=SYSTEM_RADIUS,
+                )
+                for object in current_system.celestial_objects
+            ]
+        else:
             display_window.fill((5, 5, 25))
             [
                 pygame.draw.line(
@@ -130,31 +169,16 @@ def game() -> None:
                 )
                 for object in list_of_systems
             ]
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_q:
                     return
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_q:
-                        return
-            pygame.display.update()
-            clock.tick(FRAME_RATE)
-
-    SYSTEM_RADIUS = 15
-    SYSTEM_COUNT = 65
-    FRAME_RATE = 60
-    pygame.init()
-    infoObject = pygame.display.Info()
-    WIDTH, HEIGHT = infoObject.current_w, infoObject.current_h
-    display_window = pygame.display.set_mode(
-        (infoObject.current_w, infoObject.current_h)
-    )
-    pygame.display.set_caption("Interstellar Exploration")
-    # pygame.display.set_icon(Icon_name)
-    clock = pygame.time.Clock()
-    list_of_systems = create_systems(SYSTEM_COUNT, SYSTEM_RADIUS, WIDTH, HEIGHT)
-    list_of_hyperlanes = create_hyperlanes(list_of_systems)
-    pygameRun()
-    pygame.quit()
+                if event.key == pygame.K_m:
+                    star_view = not star_view
+        pygame.display.update()
+        clock.tick(FRAME_RATE)
 
 
 game()

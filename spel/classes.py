@@ -16,6 +16,8 @@ class System:
         self.position = position
         self.hyperlanes = []
         self.neighboring_systems = []
+        self.celestial_objects = []
+        self.unvisisted = True
 
     def create_hyperlane(self, startpos, endpos, system) -> None:
         new_hyperlane = Hyperlane(startpos, endpos, self, system)
@@ -24,9 +26,36 @@ class System:
         system.neighboring_systems.append(self)
         system.hyperlanes.append(new_hyperlane)
 
+    def generate(self) -> None:
+        self.unvisisted = False
+        self.celestial_objects.append(Star())
+
+        pass
+
 
 class Hyperlane:
     def __init__(self, startpos, endpos, startstar, endstar) -> None:
         self.startpos = startpos
         self.endpos = endpos
         self.stars = startstar, endstar
+
+
+class Celestial_Object:
+    def __init__(self) -> None:
+        pass
+
+
+class Star(Celestial_Object):
+    def __init__(self, colour) -> None:
+        super().__init__()
+        self.colour = colour
+
+
+class Planet(Celestial_Object):
+    def __init__(self) -> None:
+        super().__init__()
+
+
+class Moon(Celestial_Object):
+    def __init__(self) -> None:
+        super().__init__()
