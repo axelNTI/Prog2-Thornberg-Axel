@@ -26,11 +26,17 @@ class System:
         system.neighboring_systems.append(self)
         system.hyperlanes.append(new_hyperlane)
 
-    def generate(self) -> None:
+    def generate(self, colour) -> None:
         self.unvisisted = False
-        self.celestial_objects.append(Star())
-
-        pass
+        star_amount = random.randint(1, 3)
+        for i in range(star_amount):
+            if star_amount == 1:
+                pass
+            else:
+                if random.randint(1, 2) == 1:
+                    pass
+                else:
+                    pass
 
 
 class Hyperlane:
