@@ -18,6 +18,7 @@ from classes import *
 # Borderless Windowed:
 # display_window = pygame.display.set_mode((infoObject9.current_w, infoObject.current_h))
 
+# Viggo was here:)
 
 def intround(value) -> int:
     return int(round(value, 0))
