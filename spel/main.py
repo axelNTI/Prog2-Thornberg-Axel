@@ -109,8 +109,7 @@ def game() -> None:
     list_of_systems = create_systems(SYSTEM_COUNT, SYSTEM_RADIUS, WIDTH, HEIGHT)
     list_of_hyperlanes = create_hyperlanes(list_of_systems)
     current_system = random.choice(list_of_systems)
-    print(current_system.colour)
-    current_system.generate(current_system.colour)
+    current_system.generate()
     values = (
         display_window,
         list_of_hyperlanes,
@@ -146,7 +145,9 @@ def pygameRun(values) -> None:
                     center=(object.posx, object.posy),
                     radius=SYSTEM_RADIUS,
                 )
-                for object in current_system.celestial_objects
+                for object in current_system.stars
+                + current_system.planets
+                + current_system.moons
             ]
         else:
             display_window.fill((5, 5, 25))
