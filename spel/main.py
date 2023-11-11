@@ -109,7 +109,7 @@ def game() -> None:
     list_of_systems = create_systems(SYSTEM_COUNT, SYSTEM_RADIUS, WIDTH, HEIGHT)
     list_of_hyperlanes = create_hyperlanes(list_of_systems)
     current_system = random.choice(list_of_systems)
-    current_system.generate()
+    current_system.generate(WIDTH, HEIGHT)
     values = (
         display_window,
         list_of_hyperlanes,
@@ -119,6 +119,8 @@ def game() -> None:
         FRAME_RATE,
         star_view,
         current_system,
+        WIDTH,
+        HEIGHT,
     )
     pygameRun(values)
     pygame.quit()
@@ -134,6 +136,8 @@ def pygameRun(values) -> None:
         FRAME_RATE,
         star_view,
         current_system,
+        WIDTH,
+        HEIGHT,
     ) = values
     while True:
         if star_view:
@@ -141,11 +145,24 @@ def pygameRun(values) -> None:
             [
                 pygame.draw.circle(
                     surface=display_window,
-                    color=object.colour,
-                    center=(object.posx, object.posy),
-                    radius=SYSTEM_RADIUS,
+                    color=(155, 155, 155),
+                    center=(
+                        object.orbit.posx + WIDTH / 2,
+                        object.orbit.posy + HEIGHT / 2,
+                    ),
+                    radius=object.hypotenuse,
+                    width=1,
                 )
-                for object in current_system.stars
+                for object in current_system.planets + current_system.moons
+            ]
+            [
+                pygame.draw.circle(
+                    surface=display_window,
+                    color=object.colour,
+                    center=(object.posx + WIDTH / 2, object.posy + HEIGHT / 2),
+                    radius=intround(object.size / 1.5),
+                )
+                for object in [current_system.star]
                 + current_system.planets
                 + current_system.moons
             ]
