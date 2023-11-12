@@ -28,25 +28,69 @@ class System:
         system.neighboring_systems.append(self)
         system.hyperlanes.append(new_hyperlane)
 
-    def generate(self, WIDTH, HEIGHT) -> None:
+    def generate(self, SCALE) -> None:
         self.unvisisted = False
-        self.star = Star((0, 0), None, self.colour)
-        CONSTANT = 350
+        self.star = Star((0, 0), self.colour)
+        PLANET_CONSTANT = 500
+        MOON_CONSTANT = 40
         terrestial_planet_count = random.randint(1, 6)
         gas_count = random.randint(1, 6)
         for planet in range(terrestial_planet_count):
             angle = random.uniform(0, 2 * math.pi)
-            hypotenuse = CONSTANT * (planet + 1) / terrestial_planet_count
-            planet = Terrestial(
+            hypotenuse = (
+                SCALE
+                * PLANET_CONSTANT
+                * (planet + 1)
+                / (terrestial_planet_count + gas_count)
+            )
+            planet_object = Terrestial_Planet(
                 (math.cos(angle) * hypotenuse, math.sin(angle) * hypotenuse),
                 self.star,
                 hypotenuse,
             )
-            self.planets.append(planet)
+            self.planets.append(planet_object)
             terrestial_moons_count = random.randint(0, 2)
-            for moon in range(terrestial_moons_count):
+            for terrestial_moon in range(terrestial_moons_count):
                 angle = random.uniform(0, 2 * math.pi)
-                hypotenuse = CONSTANT * (moon + 1) / terrestial_moons_count
+                hypotenuse = SCALE * MOON_CONSTANT * (terrestial_moon + 1) / 2
+                self.moons.append(
+                    Terrestial_Moon(
+                        (
+                            math.cos(angle) * hypotenuse + planet_object.posx,
+                            math.sin(angle) * hypotenuse + planet_object.posy,
+                        ),
+                        planet_object,
+                        hypotenuse,
+                    )
+                )
+        for gas in range(gas_count):
+            angle = random.uniform(0, 2 * math.pi)
+            hypotenuse = (
+                SCALE
+                * PLANET_CONSTANT
+                * (gas + terrestial_planet_count + 1)
+                / (terrestial_planet_count + gas_count)
+            )
+            gas_object = Gas(
+                (math.cos(angle) * hypotenuse, math.sin(angle) * hypotenuse),
+                self.star,
+                hypotenuse,
+            )
+            self.planets.append(gas_object)
+            gas_moons_count = random.randint(1, 4)
+            for gas_moon in range(gas_moons_count):
+                angle = random.uniform(0, 2 * math.pi)
+                hypotenuse = SCALE * MOON_CONSTANT * (gas_moon + 1) / 4
+                self.moons.append(
+                    Terrestial_Moon(
+                        (
+                            math.cos(angle) * hypotenuse + gas_object.posx,
+                            math.sin(angle) * hypotenuse + gas_object.posy,
+                        ),
+                        gas_object,
+                        hypotenuse,
+                    )
+                )
 
 
 class Hyperlane:
@@ -56,28 +100,27 @@ class Hyperlane:
         self.stars = startstar, endstar
 
 
-class Celestial_Object:
-    def __init__(self, position, orbit) -> None:
+class Celestial_Body:
+    def __init__(self, position) -> None:
         self.posx, self.posy = position
         self.position = position
-        self.orbit = orbit
 
 
-class Star(Celestial_Object):
-    def __init__(self, position, orbit, colour) -> None:
-        super().__init__(position, orbit)
+class Star(Celestial_Body):
+    def __init__(self, position, colour) -> None:
+        super().__init__(position)
         self.colour = colour
         self.size = 50
 
 
-class Planet(Celestial_Object):
+class Orbital(Celestial_Body):
     def __init__(self, position, orbit, hypotenuse) -> None:
-        super().__init__(position, orbit)
-        self.size = random.randint(12, 25)
+        super().__init__(position)
+        self.orbit = orbit
         self.hypotenuse = hypotenuse
 
 
-class Terrestial(Planet):
+class Terrestial(Orbital):
     def __init__(self, position, orbit, hypotenuse) -> None:
         super().__init__(position, orbit, hypotenuse)
         self.colour = random.choice(
@@ -106,9 +149,10 @@ class Terrestial(Planet):
         )
 
 
-class Gas(Planet):
+class Gas(Orbital):
     def __init__(self, position, orbit, hypotenuse) -> None:
         super().__init__(position, orbit, hypotenuse)
+        self.size = random.randint(20, 30)
         self.colour = random.choice(
             (
                 (237, 219, 173),
@@ -135,6 +179,13 @@ class Gas(Planet):
         )
 
 
-class Moon(Terrestial):
+class Terrestial_Planet(Terrestial):
     def __init__(self, position, orbit, hypotenuse) -> None:
         super().__init__(position, orbit, hypotenuse)
+        self.size = random.randint(12, 25)
+
+
+class Terrestial_Moon(Terrestial):
+    def __init__(self, position, orbit, hypotenuse) -> None:
+        super().__init__(position, orbit, hypotenuse)
+        self.size = random.randint(5, 10)

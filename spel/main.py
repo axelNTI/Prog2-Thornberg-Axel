@@ -94,7 +94,7 @@ def create_hyperlanes(list_of_systems) -> list:
     )
 
 
-def game() -> None:
+def game_setup() -> None:
     SYSTEM_RADIUS = 15
     SYSTEM_COUNT = 65
     FRAME_RATE = 60
@@ -102,6 +102,7 @@ def game() -> None:
     pygame.init()
     infoObject = pygame.display.Info()
     WIDTH, HEIGHT = infoObject.current_w, infoObject.current_h
+    SCALE = min(WIDTH, HEIGHT) / 1080
     display_window = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Interstellar Exploration")
     # pygame.display.set_icon(Icon_name)
@@ -109,7 +110,7 @@ def game() -> None:
     list_of_systems = create_systems(SYSTEM_COUNT, SYSTEM_RADIUS, WIDTH, HEIGHT)
     list_of_hyperlanes = create_hyperlanes(list_of_systems)
     current_system = random.choice(list_of_systems)
-    current_system.generate(WIDTH, HEIGHT)
+    current_system.generate(SCALE)
     values = (
         display_window,
         list_of_hyperlanes,
@@ -121,12 +122,13 @@ def game() -> None:
         current_system,
         WIDTH,
         HEIGHT,
+        SCALE,
     )
-    pygameRun(values)
+    pygame_run(values)
     pygame.quit()
 
 
-def pygameRun(values) -> None:
+def pygame_run(values) -> None:
     (
         display_window,
         list_of_hyperlanes,
@@ -138,6 +140,7 @@ def pygameRun(values) -> None:
         current_system,
         WIDTH,
         HEIGHT,
+        SCALE,
     ) = values
     while True:
         if star_view:
@@ -145,7 +148,7 @@ def pygameRun(values) -> None:
             [
                 pygame.draw.circle(
                     surface=display_window,
-                    color=(155, 155, 155),
+                    color=(100, 100, 100),
                     center=(
                         object.orbit.posx + WIDTH / 2,
                         object.orbit.posy + HEIGHT / 2,
@@ -160,7 +163,7 @@ def pygameRun(values) -> None:
                     surface=display_window,
                     color=object.colour,
                     center=(object.posx + WIDTH / 2, object.posy + HEIGHT / 2),
-                    radius=intround(object.size / 1.5),
+                    radius=intround(object.size * SCALE * 0.5),
                 )
                 for object in [current_system.star]
                 + current_system.planets
@@ -199,4 +202,4 @@ def pygameRun(values) -> None:
         clock.tick(FRAME_RATE)
 
 
-game()
+game_setup()
