@@ -1,6 +1,5 @@
 import pygame
 import random
-import itertools
 from classes import *
 
 
@@ -25,26 +24,19 @@ def intround(value) -> int:
 
 def create_systems(SYSTEM_COUNT, SYSTEM_RADIUS, WIDTH, HEIGHT) -> list:
     positions = random.sample(
-        list(
-            itertools.product(
-                [
-                    x
-                    for x in range(
-                        SYSTEM_RADIUS,
-                        WIDTH - SYSTEM_RADIUS,
-                        intround(2.5 * SYSTEM_RADIUS),
-                    )
-                ],
-                [
-                    y
-                    for y in range(
-                        SYSTEM_RADIUS,
-                        HEIGHT - SYSTEM_RADIUS,
-                        intround(2.5 * SYSTEM_RADIUS),
-                    )
-                ],
+        [
+            (x, y)
+            for x in range(
+                SYSTEM_RADIUS,
+                WIDTH - SYSTEM_RADIUS,
+                intround(2.5 * SYSTEM_RADIUS),
             )
-        ),
+            for y in range(
+                SYSTEM_RADIUS,
+                HEIGHT - SYSTEM_RADIUS,
+                intround(2.5 * SYSTEM_RADIUS),
+            )
+        ],
         k=SYSTEM_COUNT,
     )
     list_of_systems = [System(position=positions[i]) for i in range(SYSTEM_COUNT)]
@@ -98,7 +90,7 @@ def game_setup() -> None:
     SYSTEM_RADIUS = 15
     SYSTEM_COUNT = 65
     FRAME_RATE = 60
-    star_view = False
+    system_view = True
     pygame.init()
     infoObject = pygame.display.Info()
     WIDTH, HEIGHT = infoObject.current_w, infoObject.current_h
@@ -118,7 +110,7 @@ def game_setup() -> None:
         list_of_systems,
         clock,
         FRAME_RATE,
-        star_view,
+        system_view,
         current_system,
         WIDTH,
         HEIGHT,
@@ -136,14 +128,14 @@ def pygame_run(values) -> None:
         list_of_systems,
         clock,
         FRAME_RATE,
-        star_view,
+        system_view,
         current_system,
         WIDTH,
         HEIGHT,
         SCALE,
     ) = values
     while True:
-        if star_view:
+        if system_view:
             display_window.fill((5, 5, 25))
             [
                 pygame.draw.circle(
@@ -197,7 +189,7 @@ def pygame_run(values) -> None:
                 if event.key == pygame.K_q:
                     return
                 if event.key == pygame.K_m:
-                    star_view = not star_view
+                    system_view = not system_view
         pygame.display.update()
         clock.tick(FRAME_RATE)
 
