@@ -39,13 +39,13 @@ def create_systems(SYSTEM_COUNT, SYSTEM_RADIUS, WIDTH, HEIGHT) -> list:
         ],
         k=SYSTEM_COUNT,
     )
-    list_of_systems = [System(position=positions[i]) for i in range(SYSTEM_COUNT)]
-    return list_of_systems
+    system_arr = [System(position=positions[i]) for i in range(SYSTEM_COUNT)]
+    return system_arr
 
 
-def create_hyperlanes(list_of_systems) -> list:
-    for object_i in list_of_systems:
-        list_of_systems_sorted = list(
+def create_hyperlanes(system_arr) -> list:
+    for object_i in system_arr:
+        system_arr_sorted = list(
             dict(
                 sorted(
                     {
@@ -54,7 +54,7 @@ def create_hyperlanes(list_of_systems) -> list:
                             + (object_j.posy - object_i.posy) ** 2
                         )
                         ** 0.5
-                        for object_j in list_of_systems
+                        for object_j in system_arr
                         if object_i != object_j
                     }.items(),
                     key=lambda item: item[1],
@@ -64,9 +64,9 @@ def create_hyperlanes(list_of_systems) -> list:
         i = 0
         hyperlane_amount = random.randint(1, 4)
         while hyperlane_amount > len(object_i.hyperlanes) and i < len(
-            list_of_systems_sorted
+            system_arr_sorted
         ):
-            object_j = list_of_systems_sorted[i]
+            object_j = system_arr_sorted[i]
             if (
                 object_i not in object_j.neighboring_systems
                 and len(object_j.hyperlanes) < 4
@@ -77,11 +77,7 @@ def create_hyperlanes(list_of_systems) -> list:
             i += 1
     return list(
         dict.fromkeys(
-            [
-                j
-                for sub in [object.hyperlanes for object in list_of_systems]
-                for j in sub
-            ]
+            [j for sub in [object.hyperlanes for object in system_arr] for j in sub]
         )
     )
 
@@ -99,15 +95,15 @@ def game_setup() -> None:
     pygame.display.set_caption("Interstellar Exploration")
     # pygame.display.set_icon(Icon_name)
     clock = pygame.time.Clock()
-    list_of_systems = create_systems(SYSTEM_COUNT, SYSTEM_RADIUS, WIDTH, HEIGHT)
-    list_of_hyperlanes = create_hyperlanes(list_of_systems)
-    current_system = random.choice(list_of_systems)
+    system_arr = create_systems(SYSTEM_COUNT, SYSTEM_RADIUS, WIDTH, HEIGHT)
+    hyperlane_arr = create_hyperlanes(system_arr)
+    current_system = random.choice(system_arr)
     current_system.generate(SCALE)
-    values = (
+    pygame_run(
         display_window,
-        list_of_hyperlanes,
+        hyperlane_arr,
         SYSTEM_RADIUS,
-        list_of_systems,
+        system_arr,
         clock,
         FRAME_RATE,
         system_view,
@@ -116,72 +112,78 @@ def game_setup() -> None:
         HEIGHT,
         SCALE,
     )
-    pygame_run(values)
     pygame.quit()
 
 
-def pygame_run(values) -> None:
-    (
-        display_window,
-        list_of_hyperlanes,
-        SYSTEM_RADIUS,
-        list_of_systems,
-        clock,
-        FRAME_RATE,
-        system_view,
-        current_system,
-        WIDTH,
-        HEIGHT,
-        SCALE,
-    ) = values
+def system_view_mode(display_window, current_system, WIDTH, HEIGHT, SCALE):
+    display_window.fill((5, 5, 25))
+    [
+        pygame.draw.circle(
+            surface=display_window,
+            color=(100, 100, 100),
+            center=(
+                object.orbit.posx + WIDTH / 2,
+                object.orbit.posy + HEIGHT / 2,
+            ),
+            radius=object.hypotenuse,
+            width=1,
+        )
+        for object in current_system.planets + current_system.moons
+    ]
+    [
+        pygame.draw.circle(
+            surface=display_window,
+            color=object.colour,
+            center=(object.posx + WIDTH / 2, object.posy + HEIGHT / 2),
+            radius=intround(object.size * SCALE * 0.5),
+        )
+        for object in [current_system.star]
+        + current_system.planets
+        + current_system.moons
+    ]
+
+
+def galaxy_view_mode(display_window, hyperlane_arr, system_arr, SYSTEM_RADIUS):
+    display_window.fill((5, 5, 25))
+    [
+        pygame.draw.line(
+            surface=display_window,
+            color=(100, 100, 100),
+            start_pos=object.startpos,
+            end_pos=object.endpos,
+            width=5,
+        )
+        for object in hyperlane_arr
+    ]
+    [
+        pygame.draw.circle(
+            surface=display_window,
+            color=object.colour,
+            center=(object.posx, object.posy),
+            radius=SYSTEM_RADIUS,
+        )
+        for object in system_arr
+    ]
+
+
+def pygame_run(
+    display_window,
+    hyperlane_arr,
+    SYSTEM_RADIUS,
+    system_arr,
+    clock,
+    FRAME_RATE,
+    system_view,
+    current_system,
+    WIDTH,
+    HEIGHT,
+    SCALE,
+) -> None:
     while True:
         if system_view:
-            display_window.fill((5, 5, 25))
-            [
-                pygame.draw.circle(
-                    surface=display_window,
-                    color=(100, 100, 100),
-                    center=(
-                        object.orbit.posx + WIDTH / 2,
-                        object.orbit.posy + HEIGHT / 2,
-                    ),
-                    radius=object.hypotenuse,
-                    width=1,
-                )
-                for object in current_system.planets + current_system.moons
-            ]
-            [
-                pygame.draw.circle(
-                    surface=display_window,
-                    color=object.colour,
-                    center=(object.posx + WIDTH / 2, object.posy + HEIGHT / 2),
-                    radius=intround(object.size * SCALE * 0.5),
-                )
-                for object in [current_system.star]
-                + current_system.planets
-                + current_system.moons
-            ]
+            system_view_mode(display_window, current_system, WIDTH, HEIGHT, SCALE)
         else:
-            display_window.fill((5, 5, 25))
-            [
-                pygame.draw.line(
-                    surface=display_window,
-                    color=(100, 100, 100),
-                    start_pos=object.startpos,
-                    end_pos=object.endpos,
-                    width=5,
-                )
-                for object in list_of_hyperlanes
-            ]
-            [
-                pygame.draw.circle(
-                    surface=display_window,
-                    color=object.colour,
-                    center=(object.posx, object.posy),
-                    radius=SYSTEM_RADIUS,
-                )
-                for object in list_of_systems
-            ]
+            galaxy_view_mode(display_window, hyperlane_arr, system_arr, SYSTEM_RADIUS)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return

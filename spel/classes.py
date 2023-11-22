@@ -19,6 +19,7 @@ class System:
         self.neighboring_systems = []
         self.planets = []
         self.moons = []
+        self.jump_points = []
         self.unvisisted = True
 
     def create_hyperlane(self, startpos, endpos, system) -> None:
@@ -91,6 +92,8 @@ class System:
                         hypotenuse,
                     )
                 )
+        for jump_point in self.neighboring_systems:
+            self.jump_points.append(Jump_Point)
 
 
 class Hyperlane:
@@ -189,3 +192,8 @@ class Terrestial_Moon(Terrestial):
     def __init__(self, position, orbit, hypotenuse) -> None:
         super().__init__(position, orbit, hypotenuse)
         self.size = random.randint(5, 10)
+
+
+class Jump_Point:
+    def __init__(self, position) -> None:
+        pass
