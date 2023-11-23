@@ -29,7 +29,7 @@ class System:
         system.neighboring_systems.append(self)
         system.hyperlanes.append(new_hyperlane)
 
-    def generate(self, SCALE) -> None:
+    def generate(self) -> None:
         self.unvisisted = False
         self.star = Star((0, 0), self.colour)
         PLANET_CONSTANT = 500
@@ -39,10 +39,7 @@ class System:
         for planet in range(terrestial_planet_count):
             angle = random.uniform(0, 2 * math.pi)
             hypotenuse = (
-                SCALE
-                * PLANET_CONSTANT
-                * (planet + 1)
-                / (terrestial_planet_count + gas_count)
+                PLANET_CONSTANT * (planet + 1) / (terrestial_planet_count + gas_count)
             )
             planet_object = Terrestial_Planet(
                 (math.cos(angle) * hypotenuse, math.sin(angle) * hypotenuse),
@@ -53,7 +50,7 @@ class System:
             terrestial_moons_count = random.randint(0, 2)
             for terrestial_moon in range(terrestial_moons_count):
                 angle = random.uniform(0, 2 * math.pi)
-                hypotenuse = SCALE * MOON_CONSTANT * (terrestial_moon + 1) / 2
+                hypotenuse = MOON_CONSTANT * (terrestial_moon + 1) / 2
                 self.moons.append(
                     Terrestial_Moon(
                         (
@@ -67,8 +64,7 @@ class System:
         for gas in range(gas_count):
             angle = random.uniform(0, 2 * math.pi)
             hypotenuse = (
-                SCALE
-                * PLANET_CONSTANT
+                PLANET_CONSTANT
                 * (gas + terrestial_planet_count + 1)
                 / (terrestial_planet_count + gas_count)
             )
@@ -81,7 +77,7 @@ class System:
             gas_moons_count = random.randint(1, 4)
             for gas_moon in range(gas_moons_count):
                 angle = random.uniform(0, 2 * math.pi)
-                hypotenuse = SCALE * MOON_CONSTANT * (gas_moon + 1) / 4
+                hypotenuse = MOON_CONSTANT * (gas_moon + 1) / 4
                 self.moons.append(
                     Terrestial_Moon(
                         (
@@ -93,13 +89,15 @@ class System:
                     )
                 )
         for jump_point in self.neighboring_systems:
-            self.jump_points.append(Jump_Point)
+            self.jump_points.append(Jump_Point())
 
 
 class Hyperlane:
     def __init__(self, startpos, endpos, startstar, endstar) -> None:
         self.startpos = startpos
+        self.startposx, self.startposy = startpos
         self.endpos = endpos
+        self.endposx, self.endposy = endpos
         self.stars = startstar, endstar
 
 
@@ -195,5 +193,5 @@ class Terrestial_Moon(Terrestial):
 
 
 class Jump_Point:
-    def __init__(self, position) -> None:
+    def __init__(self) -> None:
         pass

@@ -19,31 +19,16 @@ from classes import *
 # display_window = pygame.display.set_mode((infoObject9.current_w, infoObject.current_h))
 
 
-def intround(value: int or float) -> int:
+def intround(value: float) -> int:
     return int(round(value, 0))
 
 
-def create_systems(
-    SYSTEM_COUNT: int, SYSTEM_RADIUS: int, WIDTH: int, HEIGHT: int
-) -> list:
+def create_systems(SYSTEM_COUNT: int) -> list:
     positions = random.sample(
-        [
-            (x, y)
-            for x in range(
-                SYSTEM_RADIUS,
-                WIDTH - SYSTEM_RADIUS,
-                intround(2.5 * SYSTEM_RADIUS),
-            )
-            for y in range(
-                SYSTEM_RADIUS,
-                HEIGHT - SYSTEM_RADIUS,
-                intround(2.5 * SYSTEM_RADIUS),
-            )
-        ],
+        [(x, y) for x in range(1, 30) for y in range(1, 30)],
         k=SYSTEM_COUNT,
     )
-    system_arr = [System(position=positions[i]) for i in range(SYSTEM_COUNT)]
-    return system_arr
+    return [System(position=positions[i]) for i in range(SYSTEM_COUNT)]
 
 
 def create_hyperlanes(system_arr: list) -> list:
@@ -86,7 +71,6 @@ def create_hyperlanes(system_arr: list) -> list:
 
 
 def game_setup() -> None:
-    SYSTEM_RADIUS = 15
     SYSTEM_COUNT = 65
     FRAME_RATE = 60
     pygame.init()
@@ -99,14 +83,13 @@ def game_setup() -> None:
     pygame.display.set_caption("Interstellar Exploration")
     # pygame.display.set_icon(Icon_name)
     clock = pygame.time.Clock()
-    system_arr = create_systems(SYSTEM_COUNT, SYSTEM_RADIUS, WIDTH, HEIGHT)
+    system_arr = create_systems(SYSTEM_COUNT)
     hyperlane_arr = create_hyperlanes(system_arr)
     current_system = random.choice(system_arr)
-    current_system.generate(SCALE)
+    current_system.generate()
     pygame_run(
         display_window,
         hyperlane_arr,
-        SYSTEM_RADIUS,
         system_arr,
         clock,
         FRAME_RATE,
@@ -120,13 +103,14 @@ def game_setup() -> None:
     pygame.quit()
 
 
-def main_menu_mode(manager: pygame_gui.ui_manager.UIManager, current_view: str):
+def main_menu_mode(
+    display_window: pygame.surface.Surface, manager: pygame_gui.ui_manager.UIManager
+):
     hello_button = pygame_gui.elements.UIButton(
         relative_rect=pygame.Rect((350, 275), (100, 50)),
         text="Say Hello",
         manager=manager,
     )
-    return current_view
 
 
 def system_view_mode(
@@ -134,8 +118,7 @@ def system_view_mode(
     current_system: object,
     WIDTH: int,
     HEIGHT: int,
-    SCALE: int or float,
-    current_view: str,
+    SCALE: float,
 ) -> str:
     display_window.fill((5, 5, 25))
     [
@@ -143,11 +126,11 @@ def system_view_mode(
             surface=display_window,
             color=(100, 100, 100),
             center=(
-                object.orbit.posx + WIDTH / 2,
-                object.orbit.posy + HEIGHT / 2,
+                intround(object.orbit.posx * SCALE + WIDTH / 2),
+                intround(object.orbit.posy * SCALE + HEIGHT / 2),
             ),
-            radius=object.hypotenuse,
-            width=1,
+            radius=intround(object.hypotenuse * SCALE),
+            width=intround(1 * SCALE),
         )
         for object in current_system.planets + current_system.moons
     ]
@@ -155,31 +138,35 @@ def system_view_mode(
         pygame.draw.circle(
             surface=display_window,
             color=object.colour,
-            center=(object.posx + WIDTH / 2, object.posy + HEIGHT / 2),
+            center=(
+                intround(SCALE * object.posx + WIDTH / 2),
+                intround(SCALE * object.posy + HEIGHT / 2),
+            ),
             radius=intround(object.size * SCALE * 0.5),
         )
         for object in [current_system.star]
         + current_system.planets
         + current_system.moons
     ]
-    for event in pygame.event.get():
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_m:
-                current_view = "galaxy_view"
-    return current_view
 
 
 def galaxy_view_mode(
-    display_window, hyperlane_arr, system_arr, SYSTEM_RADIUS, current_view
+    display_window, hyperlane_arr, system_arr, current_system, SCALE, HEIGHT, WIDTH
 ):
     display_window.fill((5, 5, 25))
     [
         pygame.draw.line(
             surface=display_window,
             color=(100, 100, 100),
-            start_pos=object.startpos,
-            end_pos=object.endpos,
-            width=5,
+            start_pos=(
+                intround(object.startposx * SCALE * 36 + WIDTH**2 / HEIGHT),
+                intround(object.startposy * SCALE * 36),
+            ),
+            end_pos=(
+                intround(object.endposx * SCALE * 36 + WIDTH**2 / HEIGHT),
+                intround(object.endposy * SCALE * 36),
+            ),
+            width=intround(5.4 * SCALE),
         )
         for object in hyperlane_arr
     ]
@@ -187,22 +174,25 @@ def galaxy_view_mode(
         pygame.draw.circle(
             surface=display_window,
             color=object.colour,
-            center=(object.posx, object.posy),
-            radius=SYSTEM_RADIUS,
+            center=(
+                intround(object.posx * SCALE * 36 + WIDTH**2 / HEIGHT),
+                intround(object.posy * SCALE * 36),
+            ),
+            radius=intround(15 * SCALE),
         )
         for object in system_arr
     ]
-    for event in pygame.event.get():
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_m:
-                current_view = "system_view"
-    return current_view
+    # pygame.draw.circle(
+    #     surface=display_window,
+    #     color=object.colour,
+    #     center=(object.posx + WIDTH / 2, object.posy + HEIGHT / 2),
+    #     radius=intround(object.size * SCALE * 0.5),
+    # )
 
 
 def pygame_run(
     display_window,
     hyperlane_arr,
-    SYSTEM_RADIUS,
     system_arr,
     clock,
     FRAME_RATE,
@@ -213,25 +203,33 @@ def pygame_run(
     current_view,
     manager,
 ) -> None:
-    current_view = "galaxy_view"
+    current_view = "galaxy_view"  # Temp, will be remove when main menu is implemented.
     while True:
         if current_view == "main_menu":
-            current_view = main_menu_mode(manager, current_view)
+            main_menu_mode(manager, current_view)
         elif current_view == "system_view":
-            current_view = system_view_mode(
-                display_window, current_system, WIDTH, HEIGHT, SCALE, current_view
-            )
+            system_view_mode(display_window, current_system, WIDTH, HEIGHT, SCALE)
         elif current_view == "galaxy_view":
-            current_view = galaxy_view_mode(
-                display_window, hyperlane_arr, system_arr, SYSTEM_RADIUS, current_view
+            galaxy_view_mode(
+                display_window,
+                hyperlane_arr,
+                system_arr,
+                current_system,
+                SCALE,
+                HEIGHT,
+                WIDTH,
             )
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_q:
                     return
+                if event.key == pygame.K_m:
+                    if current_view == "system_view":
+                        current_view = "galaxy_view"
+                    elif current_view == "galaxy_view":
+                        current_view = "system_view"
         pygame.display.update()
 
 
