@@ -95,7 +95,7 @@ def game_setup() -> None:
     SCALE = min(WIDTH, HEIGHT) / 1080
     display_window = pygame.display.set_mode((WIDTH, HEIGHT))
     manager = pygame_gui.UIManager((WIDTH, HEIGHT))
-    current_view = "main_menu_mode(manager)"
+    current_view = "main_menu"
     pygame.display.set_caption("Interstellar Exploration")
     # pygame.display.set_icon(Icon_name)
     clock = pygame.time.Clock()
@@ -120,12 +120,13 @@ def game_setup() -> None:
     pygame.quit()
 
 
-def main_menu_mode(manager: pygame_gui.ui_manager.UIManager):
+def main_menu_mode(manager: pygame_gui.ui_manager.UIManager, current_view: str):
     hello_button = pygame_gui.elements.UIButton(
         relative_rect=pygame.Rect((350, 275), (100, 50)),
         text="Say Hello",
         manager=manager,
     )
+    return current_view
 
 
 def system_view_mode(
@@ -164,7 +165,7 @@ def system_view_mode(
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_m:
-                current_view = "galaxy_view_mode(display_window, hyperlane_arr, system_arr, SYSTEM_RADIUS, current_view)"
+                current_view = "galaxy_view"
     return current_view
 
 
@@ -194,7 +195,7 @@ def galaxy_view_mode(
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_m:
-                current_view = "system_view_mode(display_window, current_system, WIDTH, HEIGHT, SCALE, current_view)"
+                current_view = "system_view"
     return current_view
 
 
@@ -212,8 +213,19 @@ def pygame_run(
     current_view,
     manager,
 ) -> None:
+    current_view = "galaxy_view"
     while True:
-        exec(f"current_view={current_view}")
+        if current_view == "main_menu":
+            current_view = main_menu_mode(manager, current_view)
+        elif current_view == "system_view":
+            current_view = system_view_mode(
+                display_window, current_system, WIDTH, HEIGHT, SCALE, current_view
+            )
+        elif current_view == "galaxy_view":
+            current_view = galaxy_view_mode(
+                display_window, hyperlane_arr, system_arr, SYSTEM_RADIUS, current_view
+            )
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
@@ -221,7 +233,6 @@ def pygame_run(
                 if event.key == pygame.K_q:
                     return
         pygame.display.update()
-        clock.tick(FRAME_RATE)
 
 
 game_setup()
