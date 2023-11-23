@@ -94,7 +94,7 @@ def game_setup() -> None:
     WIDTH, HEIGHT = infoObject.current_w, infoObject.current_h
     SCALE = min(WIDTH, HEIGHT) / 1080
     display_window = pygame.display.set_mode((WIDTH, HEIGHT))
-    manager = pygame_gui.UIManager((WIDTH, HEIGHT)) 
+    manager = pygame_gui.UIManager((WIDTH, HEIGHT))
     current_view = "main_menu_mode(manager)"
     pygame.display.set_caption("Interstellar Exploration")
     # pygame.display.set_icon(Icon_name)
