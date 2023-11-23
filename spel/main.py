@@ -1,3 +1,4 @@
+import pygame_gui
 import pygame
 import random
 from classes import *
@@ -18,11 +19,13 @@ from classes import *
 # display_window = pygame.display.set_mode((infoObject9.current_w, infoObject.current_h))
 
 
-def intround(value) -> int:
+def intround(value: int or float) -> int:
     return int(round(value, 0))
 
 
-def create_systems(SYSTEM_COUNT, SYSTEM_RADIUS, WIDTH, HEIGHT) -> list:
+def create_systems(
+    SYSTEM_COUNT: int, SYSTEM_RADIUS: int, WIDTH: int, HEIGHT: int
+) -> list:
     positions = random.sample(
         [
             (x, y)
@@ -43,7 +46,7 @@ def create_systems(SYSTEM_COUNT, SYSTEM_RADIUS, WIDTH, HEIGHT) -> list:
     return system_arr
 
 
-def create_hyperlanes(system_arr) -> list:
+def create_hyperlanes(system_arr: list) -> list:
     for object_i in system_arr:
         system_arr_sorted = list(
             dict(
@@ -86,12 +89,13 @@ def game_setup() -> None:
     SYSTEM_RADIUS = 15
     SYSTEM_COUNT = 65
     FRAME_RATE = 60
-    system_view = True
     pygame.init()
     infoObject = pygame.display.Info()
     WIDTH, HEIGHT = infoObject.current_w, infoObject.current_h
     SCALE = min(WIDTH, HEIGHT) / 1080
     display_window = pygame.display.set_mode((WIDTH, HEIGHT))
+    manager = pygame_gui.UIManager((WIDTH, HEIGHT)) 
+    current_view = "main_menu_mode(manager)"
     pygame.display.set_caption("Interstellar Exploration")
     # pygame.display.set_icon(Icon_name)
     clock = pygame.time.Clock()
@@ -106,16 +110,32 @@ def game_setup() -> None:
         system_arr,
         clock,
         FRAME_RATE,
-        system_view,
         current_system,
         WIDTH,
         HEIGHT,
         SCALE,
+        current_view,
+        manager,
     )
     pygame.quit()
 
 
-def system_view_mode(display_window, current_system, WIDTH, HEIGHT, SCALE):
+def main_menu_mode(manager: pygame_gui.ui_manager.UIManager):
+    hello_button = pygame_gui.elements.UIButton(
+        relative_rect=pygame.Rect((350, 275), (100, 50)),
+        text="Say Hello",
+        manager=manager,
+    )
+
+
+def system_view_mode(
+    display_window: pygame.surface.Surface,
+    current_system: object,
+    WIDTH: int,
+    HEIGHT: int,
+    SCALE: int or float,
+    current_view: str,
+) -> str:
     display_window.fill((5, 5, 25))
     [
         pygame.draw.circle(
@@ -141,9 +161,16 @@ def system_view_mode(display_window, current_system, WIDTH, HEIGHT, SCALE):
         + current_system.planets
         + current_system.moons
     ]
+    for event in pygame.event.get():
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_m:
+                current_view = "galaxy_view_mode(display_window, hyperlane_arr, system_arr, SYSTEM_RADIUS, current_view)"
+    return current_view
 
 
-def galaxy_view_mode(display_window, hyperlane_arr, system_arr, SYSTEM_RADIUS):
+def galaxy_view_mode(
+    display_window, hyperlane_arr, system_arr, SYSTEM_RADIUS, current_view
+):
     display_window.fill((5, 5, 25))
     [
         pygame.draw.line(
@@ -164,6 +191,11 @@ def galaxy_view_mode(display_window, hyperlane_arr, system_arr, SYSTEM_RADIUS):
         )
         for object in system_arr
     ]
+    for event in pygame.event.get():
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_m:
+                current_view = "system_view_mode(display_window, current_system, WIDTH, HEIGHT, SCALE, current_view)"
+    return current_view
 
 
 def pygame_run(
@@ -173,25 +205,21 @@ def pygame_run(
     system_arr,
     clock,
     FRAME_RATE,
-    system_view,
     current_system,
     WIDTH,
     HEIGHT,
     SCALE,
+    current_view,
+    manager,
 ) -> None:
     while True:
-        if system_view:
-            system_view_mode(display_window, current_system, WIDTH, HEIGHT, SCALE)
-        else:
-            galaxy_view_mode(display_window, hyperlane_arr, system_arr, SYSTEM_RADIUS)
+        exec(f"current_view={current_view}")
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_q:
                     return
-                if event.key == pygame.K_m:
-                    system_view = not system_view
         pygame.display.update()
         clock.tick(FRAME_RATE)
 
