@@ -25,13 +25,28 @@ def intround(value: float) -> int:
 
 def create_systems(SYSTEM_COUNT: int) -> list:
     positions = random.sample(
-        [(x, y) for x in range(1, 30) for y in range(1, 30)],
+        [
+            (x, y)
+            for x in range(1, 30)
+            for y in range(1, 30)
+            if ((x - 15) ** 2 + (y - 15) ** 2) ** 0.5 <= 15
+        ],
         k=SYSTEM_COUNT,
     )
     return [System(position=positions[i]) for i in range(SYSTEM_COUNT)]
 
 
 def create_hyperlanes(system_arr: list) -> list:
+    def hyperlane_group_recursive(system: object, list_of_previous: list) -> list:
+        list_of_previous.append(system)
+        list_of_new = []
+        for neighbor in system.neighboring_systems:
+            if neighbor not in list_of_previous:
+                list_of_new.append(
+                    hyperlane_group_recursive(neighbor, list_of_previous)
+                )
+        return list_of_previous
+
     for object_i in system_arr:
         system_arr_sorted = list(
             dict(
@@ -63,11 +78,16 @@ def create_hyperlanes(system_arr: list) -> list:
                     object_i.position, object_j.position, object_j
                 )
             i += 1
-    return list(
+    hyperlane_arr = list(
         dict.fromkeys(
-            [j for sub in [object.hyperlanes for object in system_arr] for j in sub]
+            [j for sub in [lane.hyperlanes for lane in system_arr] for j in sub]
         )
     )
+    list_of_groups = []
+    random_system = random.choice(system_arr)
+    list_of_groups.append(hyperlane_group_recursive(random_system, []))
+    print(list_of_groups)
+    return hyperlane_arr
 
 
 def game_setup() -> None:
@@ -151,7 +171,13 @@ def system_view_mode(
 
 
 def galaxy_view_mode(
-    display_window, hyperlane_arr, system_arr, current_system, SCALE, HEIGHT, WIDTH
+    display_window: pygame.surface.Surface,
+    hyperlane_arr: list,
+    system_arr: list,
+    current_system: object,
+    SCALE: float,
+    HEIGHT: int,
+    WIDTH: int,
 ):
     display_window.fill((5, 5, 25))
     [
@@ -159,11 +185,11 @@ def galaxy_view_mode(
             surface=display_window,
             color=(100, 100, 100),
             start_pos=(
-                intround(object.startposx * SCALE * 36 + WIDTH**2 / HEIGHT),
+                intround(object.startposx * SCALE * 36 + (WIDTH - HEIGHT) / 2),
                 intround(object.startposy * SCALE * 36),
             ),
             end_pos=(
-                intround(object.endposx * SCALE * 36 + WIDTH**2 / HEIGHT),
+                intround(object.endposx * SCALE * 36 + (WIDTH - HEIGHT) / 2),
                 intround(object.endposy * SCALE * 36),
             ),
             width=intround(5.4 * SCALE),
@@ -175,7 +201,7 @@ def galaxy_view_mode(
             surface=display_window,
             color=object.colour,
             center=(
-                intround(object.posx * SCALE * 36 + WIDTH**2 / HEIGHT),
+                intround(object.posx * SCALE * 36 + (WIDTH - HEIGHT) / 2),
                 intround(object.posy * SCALE * 36),
             ),
             radius=intround(15 * SCALE),
