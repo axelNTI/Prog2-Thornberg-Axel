@@ -33,7 +33,7 @@ class System:
         self.unvisisted = False
         self.star = Star((0, 0), self.colour)
         PLANET_CONSTANT = 500
-        MOON_CONSTANT = 40
+        MOON_CONSTANT = 7.5
         terrestial_planet_count = random.randint(1, 6)
         gas_count = random.randint(1, 6)
         for planet in range(terrestial_planet_count):
@@ -50,7 +50,13 @@ class System:
             terrestial_moons_count = random.randint(0, 2)
             for terrestial_moon in range(terrestial_moons_count):
                 angle = random.uniform(0, 2 * math.pi)
-                hypotenuse = MOON_CONSTANT * (terrestial_moon + 1) / 2
+                hypotenuse = (
+                    planet_object.size**0.5
+                    * MOON_CONSTANT
+                    * (terrestial_moon + 1)
+                    / 2
+                    + planet_object.size * 0.5
+                )
                 self.moons.append(
                     Terrestial_Moon(
                         (
@@ -77,7 +83,10 @@ class System:
             gas_moons_count = random.randint(1, 4)
             for gas_moon in range(gas_moons_count):
                 angle = random.uniform(0, 2 * math.pi)
-                hypotenuse = MOON_CONSTANT * (gas_moon + 1) / 4
+                hypotenuse = (
+                    gas_object.size**0.5 * MOON_CONSTANT * (gas_moon + 1) / 4
+                    + gas_object.size * 0.5
+                )
                 self.moons.append(
                     Terrestial_Moon(
                         (
@@ -195,3 +204,24 @@ class Terrestial_Moon(Terrestial):
 class Jump_Point:
     def __init__(self) -> None:
         pass
+
+
+class Ship:
+    def __init__(self) -> None:
+        self.colour = random.choice(
+            (
+                (186, 228, 253),
+                (100, 140, 152),
+                (90, 120, 139),
+                (136, 172, 212),
+                (72, 96, 129),
+            )
+        )
+
+
+class Capital(Ship):
+    def __init__(self) -> None:
+        super().__init__()
+        self.size = 5
+        self.posx = 25
+        self.posy = 25

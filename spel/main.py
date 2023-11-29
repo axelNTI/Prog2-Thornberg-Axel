@@ -1,6 +1,7 @@
 import pygame_gui
 import pygame
 import random
+import numpy
 from classes import *
 
 
@@ -37,15 +38,15 @@ def create_systems(SYSTEM_COUNT: int) -> list:
 
 
 def create_hyperlanes(system_arr: list) -> list:
-    def hyperlane_group_recursive(system: object, list_of_previous: list) -> list:
-        list_of_previous.append(system)
-        list_of_new = []
-        for neighbor in system.neighboring_systems:
-            if neighbor not in list_of_previous:
-                list_of_new.append(
-                    hyperlane_group_recursive(neighbor, list_of_previous)
-                )
-        return list_of_previous
+    # def hyperlane_group_recursive(system: object, list_of_previous: list) -> list:
+    #     list_of_previous.append(system)
+    #     list_of_new = []
+    #     for neighbor in system.neighboring_systems:
+    #         if neighbor not in list_of_previous:
+    #             list_of_new.append(
+    #                 hyperlane_group_recursive(neighbor, list_of_previous)
+    #             )
+    #     return list_of_previous
 
     for object_i in system_arr:
         system_arr_sorted = list(
@@ -83,15 +84,15 @@ def create_hyperlanes(system_arr: list) -> list:
             [j for sub in [lane.hyperlanes for lane in system_arr] for j in sub]
         )
     )
-    list_of_groups = []
-    random_system = random.choice(system_arr)
-    list_of_groups.append(hyperlane_group_recursive(random_system, []))
-    print(list_of_groups)
+    # list_of_groups = []
+    # random_system = random.choice(system_arr)
+    # list_of_groups.append(hyperlane_group_recursive(random_system, []))
+    # print(list_of_groups)
     return hyperlane_arr
 
 
 def game_setup() -> None:
-    SYSTEM_COUNT = 65
+    SYSTEM_COUNT = 50
     FRAME_RATE = 60
     pygame.init()
     infoObject = pygame.display.Info()
@@ -107,18 +108,20 @@ def game_setup() -> None:
     hyperlane_arr = create_hyperlanes(system_arr)
     current_system = random.choice(system_arr)
     current_system.generate()
+    list_of_ships = [Capital()]
     pygame_run(
         display_window,
+        clock,
+        manager,
         hyperlane_arr,
         system_arr,
-        clock,
         FRAME_RATE,
         current_system,
         WIDTH,
         HEIGHT,
         SCALE,
         current_view,
-        manager,
+        list_of_ships,
     )
     pygame.quit()
 
@@ -139,6 +142,7 @@ def system_view_mode(
     WIDTH: int,
     HEIGHT: int,
     SCALE: float,
+    list_of_ships: list,
 ) -> str:
     display_window.fill((5, 5, 25))
     [
@@ -167,6 +171,18 @@ def system_view_mode(
         for object in [current_system.star]
         + current_system.planets
         + current_system.moons
+    ]
+    [
+        pygame.draw.circle(
+            surface=display_window,
+            color=object.colour,
+            center=(
+                intround(SCALE * object.posx + WIDTH / 2),
+                intround(SCALE * object.posy + HEIGHT / 2),
+            ),
+            radius=intround(object.size * SCALE),
+        )
+        for object in list_of_ships
     ]
 
 
@@ -217,24 +233,27 @@ def galaxy_view_mode(
 
 
 def pygame_run(
-    display_window,
-    hyperlane_arr,
-    system_arr,
-    clock,
-    FRAME_RATE,
-    current_system,
-    WIDTH,
-    HEIGHT,
-    SCALE,
-    current_view,
-    manager,
+    display_window: pygame.surface.Surface,
+    clock: pygame.time.Clock,
+    manager: pygame_gui.ui_manager.UIManager,
+    hyperlane_arr: list,
+    system_arr: list,
+    FRAME_RATE: int,
+    current_system: object,
+    WIDTH: int,
+    HEIGHT: int,
+    SCALE: float,
+    current_view: str,
+    list_of_ships: list,
 ) -> None:
-    current_view = "galaxy_view"  # Temp, will be remove when main menu is implemented.
+    current_view = "system_view"  # Temp, will be removed when main menu is implemented.
     while True:
         if current_view == "main_menu":
             main_menu_mode(manager, current_view)
         elif current_view == "system_view":
-            system_view_mode(display_window, current_system, WIDTH, HEIGHT, SCALE)
+            system_view_mode(
+                display_window, current_system, WIDTH, HEIGHT, SCALE, list_of_ships
+            )
         elif current_view == "galaxy_view":
             galaxy_view_mode(
                 display_window,
@@ -256,6 +275,9 @@ def pygame_run(
                         current_view = "galaxy_view"
                     elif current_view == "galaxy_view":
                         current_view = "system_view"
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 3 and current_view == "system_view":
+                    target_position = pygame.mouse.get_pos()
         pygame.display.update()
 
 
