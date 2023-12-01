@@ -1,8 +1,14 @@
 import pygame_gui
 import pygame
 import random
-import numpy
-from classes import *
+
+# import cython as cy
+# import numba as nu
+# import multiprocessing as mp
+# import numpy as np
+from classes_galaxy import *
+from classes_system import *
+from classes_ships import *
 
 
 # Personal links/comments for later:
@@ -11,7 +17,7 @@ from classes import *
 # https://www.geeksforgeeks.org/how-to-change-the-name-of-a-pygame-window/
 # https://stackoverflow.com/questions/3838329/how-can-i-check-if-two-segments-intersect
 #
-#
+# Använd numpy
 #
 # Fullscreen:
 # display_window = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
@@ -34,7 +40,7 @@ def create_systems(SYSTEM_COUNT: int) -> list:
         ],
         k=SYSTEM_COUNT,
     )
-    return [System(position=positions[i]) for i in range(SYSTEM_COUNT)]
+    return [System(positions[i]) for i in range(SYSTEM_COUNT)]
 
 
 def create_hyperlanes(system_arr: list) -> list:
@@ -108,7 +114,8 @@ def game_setup() -> None:
     hyperlane_arr = create_hyperlanes(system_arr)
     current_system = random.choice(system_arr)
     current_system.generate()
-    list_of_ships = [Capital()]
+    player_fleet = Fleet()
+    player_fleet.ships.append(Capital())
     pygame_run(
         display_window,
         clock,
@@ -121,7 +128,7 @@ def game_setup() -> None:
         HEIGHT,
         SCALE,
         current_view,
-        list_of_ships,
+        player_fleet,
     )
     pygame.quit()
 
@@ -142,7 +149,7 @@ def system_view_mode(
     WIDTH: int,
     HEIGHT: int,
     SCALE: float,
-    list_of_ships: list,
+    player_fleet: object,
 ) -> str:
     display_window.fill((5, 5, 25))
     [
@@ -182,7 +189,7 @@ def system_view_mode(
             ),
             radius=intround(object.size * SCALE),
         )
-        for object in list_of_ships
+        for object in player_fleet.ships
     ]
 
 
@@ -244,7 +251,7 @@ def pygame_run(
     HEIGHT: int,
     SCALE: float,
     current_view: str,
-    list_of_ships: list,
+    player_fleet: object,
 ) -> None:
     current_view = "system_view"  # Temp, will be removed when main menu is implemented.
     while True:
@@ -252,7 +259,7 @@ def pygame_run(
             main_menu_mode(manager, current_view)
         elif current_view == "system_view":
             system_view_mode(
-                display_window, current_system, WIDTH, HEIGHT, SCALE, list_of_ships
+                display_window, current_system, WIDTH, HEIGHT, SCALE, player_fleet
             )
         elif current_view == "galaxy_view":
             galaxy_view_mode(
@@ -277,7 +284,8 @@ def pygame_run(
                         current_view = "system_view"
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 3 and current_view == "system_view":
-                    target_position = pygame.mouse.get_pos()
+                    player_fleet.target_position = pygame.mouse.get_pos()
+
         pygame.display.update()
 
 
