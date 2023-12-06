@@ -30,17 +30,17 @@ def intround(value: float) -> int:
     return int(round(value, 0))
 
 
-def create_systems(SYSTEM_COUNT: int) -> list:
+def create_systems(SYSTEM_COUNT: int) -> np.ndarray:
     x_values, y_values = np.meshgrid(np.arange(1, 30), np.arange(1, 30))
     distances = np.sqrt((x_values - 15) ** 2 + (y_values - 15) ** 2)
     mask = distances <= 15
     valid_coordinates = np.column_stack((x_values[mask], y_values[mask]))
     np.random.shuffle(valid_coordinates)
     positions = valid_coordinates[:SYSTEM_COUNT]
-    return [System(positions[i]) for i in range(SYSTEM_COUNT)]
+    return np.array([System(positions[i]) for i in range(SYSTEM_COUNT)])
 
 
-def create_hyperlanes(system_arr: list) -> list:
+def create_hyperlanes(system_arr: np.ndarray) -> np.ndarray:
     # def hyperlane_group_recursive(system: object, list_of_previous: list) -> list:
     #     list_of_previous.append(system)
     #     list_of_new = []
@@ -50,7 +50,6 @@ def create_hyperlanes(system_arr: list) -> list:
     #                 hyperlane_group_recursive(neighbor, list_of_previous)
     #             )
     #     return list_of_previous
-
     for object_i in system_arr:
         system_arr_sorted = list(
             dict(
@@ -108,6 +107,7 @@ def game_setup() -> None:
     # pygame.display.set_icon(Icon_name)
     clock = pygame.time.Clock()
     system_arr = create_systems(SYSTEM_COUNT)
+    print(type(system_arr))
     hyperlane_arr = create_hyperlanes(system_arr)
     current_system = random.choice(system_arr)
     current_system.generate()
