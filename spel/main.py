@@ -5,7 +5,7 @@ import random
 # import cython as cy
 # import numba as nu
 # import multiprocessing as mp
-# import numpy as np
+import numpy as np
 from classes_galaxy import *
 from classes_system import *
 from classes_ships import *
@@ -31,15 +31,12 @@ def intround(value: float) -> int:
 
 
 def create_systems(SYSTEM_COUNT: int) -> list:
-    positions = random.sample(
-        [
-            (x, y)
-            for x in range(1, 30)
-            for y in range(1, 30)
-            if ((x - 15) ** 2 + (y - 15) ** 2) ** 0.5 <= 15
-        ],
-        k=SYSTEM_COUNT,
-    )
+    x_values, y_values = np.meshgrid(np.arange(1, 30), np.arange(1, 30))
+    distances = np.sqrt((x_values - 15) ** 2 + (y_values - 15) ** 2)
+    mask = distances <= 15
+    valid_coordinates = np.column_stack((x_values[mask], y_values[mask]))
+    np.random.shuffle(valid_coordinates)
+    positions = valid_coordinates[:SYSTEM_COUNT]
     return [System(positions[i]) for i in range(SYSTEM_COUNT)]
 
 
