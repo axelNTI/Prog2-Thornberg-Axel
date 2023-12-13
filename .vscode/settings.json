@@ -2,5 +2,6 @@
     "files.exclude": {
         "**/.ini": true
     },
-    "explorer.excludeGitIgnore": true
-}
+    "explorer.excludeGitIgnore": true,
+    "python.terminal.executeInFileDir": true
+} 

@@ -37,6 +37,7 @@ def create_systems(SYSTEM_COUNT: int) -> np.ndarray:
     valid_coordinates = np.column_stack((x_values[mask], y_values[mask]))
     np.random.shuffle(valid_coordinates)
     positions = valid_coordinates[:SYSTEM_COUNT]
+
     return np.array([System(positions[i]) for i in range(SYSTEM_COUNT)])
 
 
