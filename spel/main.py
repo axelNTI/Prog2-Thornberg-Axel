@@ -1,8 +1,9 @@
 import pygame_gui
 import pygame
 import random
+import pickle
+import os
 
-# import cython as cy
 # import numba as nu
 # import multiprocessing as mp
 import numpy as np
@@ -24,6 +25,8 @@ from classes_ships import *
 #
 # Borderless Windowed:
 # display_window = pygame.display.set_mode((infoObject9.current_w, infoObject.current_h))
+
+print()
 
 
 def intround(value: float) -> int:
@@ -108,7 +111,6 @@ def game_setup() -> None:
     # pygame.display.set_icon(Icon_name)
     clock = pygame.time.Clock()
     system_arr = create_systems(SYSTEM_COUNT)
-    print(type(system_arr))
     hyperlane_arr = create_hyperlanes(system_arr)
     current_system = random.choice(system_arr)
     current_system.generate()
@@ -251,7 +253,19 @@ def pygame_run(
     current_view: str,
     player_fleet: object,
 ) -> None:
+    try:
+        pass
+    except:
+        pass
     current_view = "system_view"  # Temp, will be removed when main menu is implemented.
+    with open(os.path.join(os.path.dirname(__file__), "save_data.pkl"), "rb") as file:
+        (
+            hyperlane_arr,
+            system_arr,
+            current_system,
+            current_view,
+            player_fleet,
+        ) = pickle.load(file)
     while True:
         if current_view == "main_menu":
             main_menu_mode(manager, current_view)
@@ -283,7 +297,19 @@ def pygame_run(
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 3 and current_view == "system_view":
                     player_fleet.target_position = pygame.mouse.get_pos()
-
+        with open(
+            os.path.join(os.path.dirname(__file__), "save_data.pkl"), "wb"
+        ) as file:
+            pickle.dump(
+                (
+                    hyperlane_arr,
+                    system_arr,
+                    current_system,
+                    current_view,
+                    player_fleet,
+                ),
+                file,
+            )
         pygame.display.update()
 
 

@@ -2,6 +2,7 @@ import random
 import math
 from classes_system import *
 
+
 class System:
     def __init__(self, position) -> None:
         self.colour = random.choice(
@@ -108,6 +109,3 @@ class Hyperlane:
         self.endpos = endpos
         self.endposx, self.endposy = endpos
         self.stars = startstar, endstar
-
-
-

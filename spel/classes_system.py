@@ -1,5 +1,6 @@
 import random
 
+
 class Celestial_Body:
     def __init__(self, position) -> None:
         self.posx, self.posy = position
