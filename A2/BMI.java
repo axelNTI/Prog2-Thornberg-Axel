@@ -8,15 +8,12 @@ public class BMI {
         Scanner inputWeightScanner = new Scanner(System.in);
         System.out.println("Enter your weight in kilograms");
         double weight = Double.parseDouble(inputWeightScanner.nextLine());
-
         Scanner inputHeightScanner = new Scanner(System.in);
         System.out.println("Enter your height in meters");
         double height = Double.parseDouble(inputHeightScanner.nextLine());
         inputWeightScanner.close();
-        
         inputHeightScanner.close();
-        double BMI = weight / Math.pow(height, 2);
-        System.out.println("Your BMI is " + BMI);
+        System.out.println("Your BMI is " + weight / Math.pow(height, 2));
     }
 
 }

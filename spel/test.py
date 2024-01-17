@@ -1,54 +1,32 @@
-exec("import pygame_gui
-import pygame
-import random
-import pickle
-import os
+exec("import pygame_gui\nimport pygame
+\nimport random
+\nimport pickle
+\nimport os
+\nimport numpy as np
+\nfrom classes_galaxy import *
+\nfrom classes_system import *
+\nfrom classes_ships import *
+\ndef intround(value: float) -> int:
+\n\treturn int(round(value, 0))
+\ndef create_systems(SYSTEM_COUNT: int) -> np.ndarray:
+\n\tx_values, y_values = np.meshgrid(np.arange(1, 30), np.arange(1, 30))
+\n\tdistances = np.sqrt((x_values - 15) ** 2 + (y_values - 15) ** 2)
+\n\tmask = distances <= 15
+\n\tvalid_coordinates = np.column_stack((x_values[mask], y_values[mask]))
+\n\tnp.random.shuffle(valid_coordinates)
+\n\tpositions = valid_coordinates[:SYSTEM_COUNT]
 
-# import numba as nu
-# import multiprocessing as mp
-import numpy as np
-from classes_galaxy import *
-from classes_system import *
-from classes_ships import *
-
-
-# Personal links/comments for later:
-# https://www.pygame.org/docs/ref/display.html#pygame.display.Info
-# https://stackoverflow.com/questions/35617246/setting-a-fixed-fps-in-pygame-python-3
-# https://www.geeksforgeeks.org/how-to-change-the-name-of-a-pygame-window/
-# https://stackoverflow.com/questions/3838329/how-can-i-check-if-two-segments-intersect
-#
-# Använd numpy
-#
-# Fullscreen:
-# display_window = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-#
-# Borderless Windowed:
-# display_window = pygame.display.set_mode((infoObject9.current_w, infoObject.current_h))
-
-def intround(value: float) -> int:
-\treturn int(round(value, 0))
+\n\treturn np.array([System(positions[i]) for i in range(SYSTEM_COUNT)])
 
 
-def create_systems(SYSTEM_COUNT: int) -> np.ndarray:
-\tx_values, y_values = np.meshgrid(np.arange(1, 30), np.arange(1, 30))
-\tdistances = np.sqrt((x_values - 15) ** 2 + (y_values - 15) ** 2)
-\tmask = distances <= 15
-\tvalid_coordinates = np.column_stack((x_values[mask], y_values[mask]))
-\tnp.random.shuffle(valid_coordinates)
-\tpositions = valid_coordinates[:SYSTEM_COUNT]
-
-\treturn np.array([System(positions[i]) for i in range(SYSTEM_COUNT)])
-
-
-def create_hyperlanes(system_arr: np.ndarray) -> np.ndarray:
-\t# def hyperlane_group_recursive(system: object, list_of_previous: list) -> list:
-\t#\t list_of_previous.append(system)
-\t#\t list_of_new = []
-\t#\t for neighbor in system.neighboring_systems:
-\t#\t\t if neighbor not in list_of_previous:
-\t#\t\t\t list_of_new.append(
-\t#\t\t\t\t hyperlane_group_recursive(neighbor, list_of_previous)
+\ndef create_hyperlanes(system_arr: np.ndarray) -> np.ndarray:
+\n\t# def hyperlane_group_recursive(system: object, list_of_previous: list) -> list:
+\n\t#\t list_of_previous.append(system)
+\n\t#\t list_of_new = []
+\n\t#\t for neighbor in system.neighboring_systems:
+\n\t#\t\t if neighbor not in list_of_previous:
+\n\t#\t\t\t list_of_new.append(
+\n\t#\t\t\t\t hyperlane_group_recursive(neighbor, list_of_previous)
 \t#\t\t\t )
 \t#\t return list_of_previous
 \tfor object_i in system_arr:
