@@ -5,9 +5,5 @@ public abstract class Fordon {
     double price;
     String colour;
 
-    public void printInfo(String[] args) {
-        System.out.println(weight);
-        System.out.println(colour);
-        System.out.println(price);
-    }
+    public abstract void printInfo(String[] args);
 }
