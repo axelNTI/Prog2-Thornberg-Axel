@@ -43,12 +43,12 @@ def slowsort(lista, sidor):
 
 
 sidor = 100
-size = 100
+size = 20000
 
 
 quick_times = []
 slow_times = []
-for i in range(100):
+for i in range(50):
     print(i)
     random_array = [random.randint(1, sidor) for _ in range(size)]
 
