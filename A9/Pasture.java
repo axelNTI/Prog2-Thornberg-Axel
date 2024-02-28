@@ -33,8 +33,19 @@ public class Pasture implements ActionListener {
             try {
                 Point position = new Point((int) (Math.random() * width),
                         (int) (Math.random() * height));
-                Entity dummy = new Dummy(this, position);
-                addEntity(dummy);
+                Entity plant = new Plant(this, position);
+                addEntity(plant);
+            } catch (MissingResourceException pe) {
+                System.err.println("Pasture.initPasture(): " + pe.getMessage());
+                System.exit(20);
+            }
+        }
+        for (int i = 0; i < 3; i++) {
+            try {
+                Point position = new Point((int) (Math.random() * width),
+                        (int) (Math.random() * height));
+                Entity sheep = new Sheep(this, position);
+                addEntity(sheep);
             } catch (MissingResourceException pe) {
                 System.err.println("Pasture.initPasture(): " + pe.getMessage());
                 System.exit(20);

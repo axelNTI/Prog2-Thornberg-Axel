@@ -6,7 +6,7 @@ import java.awt.*;
 
 public class Dummy implements Entity {
 
-  private final ImageIcon image = new ImageIcon("unknown.gif");
+  private final ImageIcon image = new ImageIcon("A9/unknown.gif");
 
   protected Point position;
 
@@ -30,6 +30,7 @@ public class Dummy implements Entity {
   }
 
   public void tick() {
+
     Random rand = new Random();
     setPosition(new Point((int) getPosition().getX() + rand.nextInt(3) - 1, (int) getPosition().getY() + rand.nextInt(3)
         - 1));
@@ -45,6 +46,7 @@ public class Dummy implements Entity {
     if (getPosition().getY() > 19) {
       setPosition(new Point((int) getPosition().getX(), (int) 19));
     }
+    System.out.println("New Position: " + getPosition());
   }
 
   public String type() {

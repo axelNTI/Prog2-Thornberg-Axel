@@ -12,7 +12,7 @@ public class PastureGUI extends JFrame implements ActionListener {
     }
 
     /** Icon for an empty position in the pasture */
-    private final ImageIcon II_EMPTY = new ImageIcon("empty.gif");
+    private final ImageIcon II_EMPTY = new ImageIcon("A9/empty.gif");
     /** The pasture this class should display */
     private Pasture pasture;
     /** The grid, i.e., the field containing the images to display. */

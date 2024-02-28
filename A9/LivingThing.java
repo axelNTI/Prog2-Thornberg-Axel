@@ -8,6 +8,7 @@ public abstract class LivingThing implements Entity {
     private Point position;
     private ImageIcon image;
     private String type;
+    private Pasture pasture;
 
     public LivingThing(Point position, ImageIcon image, String type) {
         this.position = position;
@@ -21,6 +22,10 @@ public abstract class LivingThing implements Entity {
 
     public void setPosition(Point newPosition) {
         position = newPosition;
+    }
+
+    public void kill() {
+        pasture.removeEntity(this);
     }
 
     public abstract ImageIcon getImage();
