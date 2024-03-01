@@ -23,4 +23,10 @@ public class Sheep extends Animal {
     public ImageIcon getImage() {
         return image;
     }
+
+    // return food type
+    public String getFoodType() {
+        return "Plant";
+    }
+
 }

@@ -48,4 +48,6 @@ public interface Entity {
      * Returns the name of the entity
      */
     public String type();
+
+    public int getFood();
 }

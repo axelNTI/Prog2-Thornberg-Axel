@@ -38,18 +38,12 @@ public abstract class Animal extends LivingThing {
         if (getPosition().getY() > 19) {
             setPosition(new Point((int) getPosition().getX(), (int) 19));
         }
-        System.out.println("New Position: " + getPosition());
-    }
-
-    // Kills the animal if currentFood is 0
-    public void die() {
-        if (currentFood == 0) {
-            kill();
-        }
     }
 
     // Sets food to maxFood
-    public void feed() {
-        currentFood = maxFood;
+    public int getFood() {
+        return currentFood;
     }
+
+    public abstract String getFoodType();
 }

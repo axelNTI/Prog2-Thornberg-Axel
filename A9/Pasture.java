@@ -9,6 +9,7 @@ import java.util.Set;
 import javax.swing.Timer;
 import java.awt.event.*;
 import java.awt.*;
+import java.util.ArrayList;
 
 public class Pasture implements ActionListener {
 
@@ -55,12 +56,22 @@ public class Pasture implements ActionListener {
 
     public void actionPerformed(ActionEvent e) {
         Iterator it = getEntities().iterator();
-
+        ArrayList<Entity> deadAnimalArray = new ArrayList<>();
+        // Iterate through all entities and call their tick method
         while (it.hasNext()) {
-            ((Entity) it.next()).tick();
-            gui.updateAll();
+            Entity entity = (Entity) it.next();
+            entity.tick();
+            if (entity instanceof Animal) {
+                if (entity.getFood() == 0) {
+                    deadAnimalArray.add(entity);
+                }
+                Iterator it2 = getEntities().iterator();
+            }
         }
-
+        for (Entity entity : deadAnimalArray) {
+            removeEntity(entity);
+        }
+        gui.updateAll();
     }
 
     public void addEntity(Entity entity) {
