@@ -49,5 +49,4 @@ public interface Entity {
      */
     public String type();
 
-    public int getFood();
 }

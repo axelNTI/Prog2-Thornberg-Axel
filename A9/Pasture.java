@@ -8,6 +8,7 @@ import java.util.MissingResourceException;
 import java.util.Set;
 import javax.swing.Timer;
 import java.awt.event.*;
+import java.lang.reflect.Array;
 import java.awt.*;
 import java.util.ArrayList;
 
@@ -18,7 +19,7 @@ public class Pasture implements ActionListener {
     /** The entities that this pasture contains. */
     private Set world = Collections.synchronizedSet(new HashSet());
     /** The speed of this simulation. */
-    private int speed = 3;
+    private int speed = 10;
     /** The timer that triggers ticks to be sent out to the entities. */
     private Timer timer = new Timer(SPEED_REFERENCE / speed, this);
     /** The width of this pasture */
@@ -30,7 +31,7 @@ public class Pasture implements ActionListener {
 
     public Pasture(PastureGUI gui) {
         this.gui = gui;
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 50; i++) {
             try {
                 Point position = new Point((int) (Math.random() * width),
                         (int) (Math.random() * height));
@@ -41,7 +42,7 @@ public class Pasture implements ActionListener {
                 System.exit(20);
             }
         }
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 15; i++) {
             try {
                 Point position = new Point((int) (Math.random() * width),
                         (int) (Math.random() * height));
@@ -52,23 +53,83 @@ public class Pasture implements ActionListener {
                 System.exit(20);
             }
         }
+        for (int i = 0; i < 4; i++) {
+            try {
+                Point position = new Point((int) (Math.random() * width),
+                        (int) (Math.random() * height));
+                Entity wolf = new Wolf(this, position);
+                addEntity(wolf);
+            } catch (MissingResourceException pe) {
+                System.err.println("Pasture.initPasture(): " + pe.getMessage());
+                System.exit(20);
+            }
+        }
     }
 
     public void actionPerformed(ActionEvent e) {
-        Iterator it = getEntities().iterator();
-        ArrayList<Entity> deadAnimalArray = new ArrayList<>();
-        // Iterate through all entities and call their tick method
+
+        ArrayList<Entity> deadArray = new ArrayList<>();
+        ArrayList<Entity> plantArray = new ArrayList<>();
+        ArrayList<Entity> sheepArray = new ArrayList<>();
+        ArrayList<Entity> wolfArray = new ArrayList<>();
+        Iterator<Entity> it = world.iterator();
         while (it.hasNext()) {
-            Entity entity = (Entity) it.next();
+            Entity entity = it.next();
             entity.tick();
-            if (entity instanceof Animal) {
-                if (entity.getFood() == 0) {
-                    deadAnimalArray.add(entity);
-                }
-                Iterator it2 = getEntities().iterator();
+            if (entity instanceof Plant) {
+                plantArray.add(entity);
+            }
+            if (entity instanceof Sheep) {
+                sheepArray.add(entity);
+            }
+            if (entity instanceof Wolf) {
+                wolfArray.add(entity);
             }
         }
-        for (Entity entity : deadAnimalArray) {
+        for (Entity sheep : sheepArray) {
+            Animal animal = (Animal) sheep;
+            for (Entity plant : plantArray) {
+                if (sheep.getPosition().equals(plant.getPosition())) {
+                    animal.maxFood();
+                    deadArray.add(plant);
+                }
+            }
+            if (animal.getFood() <= 0) {
+                deadArray.add(sheep);
+            }
+            for (Entity otherSheep : sheepArray) {
+                Animal otherAnimal = (Animal) otherSheep;
+                if (sheep.getPosition().equals(otherSheep.getPosition()) && sheep != otherSheep && animal.maturity()
+                        && otherAnimal.maturity()) {
+                    Point pos = sheep.getPosition();
+                    Entity newSheep = new Sheep(this, pos);
+                    addEntity(newSheep);
+                }
+            }
+        }
+        for (Entity wolf : wolfArray) {
+            Animal animal = (Animal) wolf;
+            for (Entity sheep : sheepArray) {
+                if (wolf.getPosition().equals(sheep.getPosition())) {
+                    animal.maxFood();
+                    deadArray.add(sheep);
+                }
+            }
+            if (animal.getFood() <= 0) {
+                deadArray.add(wolf);
+            }
+            for (Entity otherWolf : wolfArray) {
+                Animal otherAnimal = (Animal) otherWolf;
+                if (wolf.getPosition().equals(otherWolf.getPosition()) && wolf != otherWolf && animal.maturity()
+                        && otherAnimal.maturity()) {
+                    Point pos = wolf.getPosition();
+                    Entity newWolf = new Wolf(this, pos);
+                    addEntity(newWolf);
+                }
+            }
+        }
+
+        for (Entity entity : deadArray) {
             removeEntity(entity);
         }
         gui.updateAll();

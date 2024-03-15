@@ -20,8 +20,18 @@ public abstract class Animal extends LivingThing {
     }
 
     // Reduce currentFood by 1 each tick
-    public void tick() {
-        currentFood--;
+    public abstract void tick();
+
+    // Sets food to maxFood
+    public int getFood() {
+        return currentFood;
+    }
+
+    public void maxFood() {
+        currentFood = maxFood;
+    }
+
+    public void move() {
         Random rand = new Random();
         setPosition(
                 new Point((int) getPosition().getX() + rand.nextInt(3) - 1, (int) getPosition().getY() + rand.nextInt(3)
@@ -40,10 +50,12 @@ public abstract class Animal extends LivingThing {
         }
     }
 
-    // Sets food to maxFood
-    public int getFood() {
-        return currentFood;
+    public void hunger() {
+        currentFood--;
     }
 
     public abstract String getFoodType();
+
+    public abstract Boolean maturity();
+
 }

@@ -3,9 +3,8 @@ package A9;
 import java.awt.Point;
 import javax.swing.ImageIcon;
 
-public class Sheep extends Animal {
-
-    private final ImageIcon image = new ImageIcon("A9/sheep.gif");
+public class Wolf extends Animal {
+    private final ImageIcon image = new ImageIcon("A9/wolf.gif");
     private Pasture pasture;
     private Point position;
     private int maxFood;
@@ -14,12 +13,12 @@ public class Sheep extends Animal {
     private double ticks;
     public Boolean mature = false;
 
-    public Sheep(Pasture pasture, Point position) {
-        super(position, new javax.swing.ImageIcon("A9/sheep.gif"), "Sheep", pasture, 10);
+    public Wolf(Pasture pasture, Point position) {
+        super(position, new javax.swing.ImageIcon("A9/wolf.gif"), "Wolf", pasture, 20);
     }
 
     public String type() {
-        return "Sheep";
+        return "Wolf";
     }
 
     public ImageIcon getImage() {
@@ -28,18 +27,18 @@ public class Sheep extends Animal {
 
     // return food type
     public String getFoodType() {
-        return "Plant";
+        return "Sheep";
     }
 
     public void tick() {
         ticks++;
-        if (ticks % 5 == 0) {
+        if (ticks % 10 == 0) {
             hunger();
         }
-        if (ticks % 5 == 0) {
+        if (ticks % 2 == 0) {
             move();
         }
-        if (ticks > 20) {
+        if (ticks > 30) {
             mature = true;
         }
     }
@@ -47,5 +46,4 @@ public class Sheep extends Animal {
     public Boolean maturity() {
         return mature;
     }
-
 }
