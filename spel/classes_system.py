@@ -6,6 +6,9 @@ class Celestial_Body:
         self.posx, self.posy = position
         self.position = position
 
+    def __str__(self) -> str:
+        return str(self.__dict__)
+
 
 class Star(Celestial_Body):
     def __init__(self, position, colour) -> None:
@@ -13,12 +16,18 @@ class Star(Celestial_Body):
         self.colour = colour
         self.size = 50
 
+    def __str__(self) -> str:
+        return str(self.__dict__)
+
 
 class Orbital(Celestial_Body):
     def __init__(self, position, orbit, hypotenuse) -> None:
         super().__init__(position)
         self.orbit = orbit
         self.hypotenuse = hypotenuse
+
+    def __str__(self) -> str:
+        return str(self.__dict__)
 
 
 class Terrestial(Orbital):
@@ -48,6 +57,9 @@ class Terrestial(Orbital):
                 (104, 105, 109),
             )
         )
+
+    def __str__(self) -> str:
+        return str(self.__dict__)
 
 
 class Gas(Orbital):
@@ -79,11 +91,17 @@ class Gas(Orbital):
             )
         )
 
+    def __str__(self) -> str:
+        return str(self.__dict__)
+
 
 class Terrestial_Planet(Terrestial):
     def __init__(self, position, orbit, hypotenuse) -> None:
         super().__init__(position, orbit, hypotenuse)
         self.size = random.randint(12, 25)
+
+    def __str__(self) -> str:
+        return str(self.__dict__)
 
 
 class Terrestial_Moon(Terrestial):
@@ -91,7 +109,13 @@ class Terrestial_Moon(Terrestial):
         super().__init__(position, orbit, hypotenuse)
         self.size = random.randint(5, 10)
 
+    def __str__(self) -> str:
+        return str(self.__dict__)
+
 
 class Jump_Point:
     def __init__(self) -> None:
-        pass
+        raise NotImplementedError
+
+    def __str__(self) -> str:
+        return str(self.__dict__)

@@ -26,8 +26,6 @@ from classes_ships import *
 # Borderless Windowed:
 # display_window = pygame.display.set_mode((infoObject9.current_w, infoObject.current_h))
 
-print()
-
 
 def intround(value: float) -> int:
     return int(round(value, 0))
@@ -44,7 +42,7 @@ def create_systems(num_systems: int, radius: int) -> np.ndarray:
     Returns:
         np.ndarray: An array of System objects with random positions.
     """
-    x_values, y_values = np.mgrid[1:2*radius, 1:2*radius]
+    x_values, y_values = np.mgrid[1 : 2 * radius, 1 : 2 * radius]
     distances = np.hypot(x_values - radius, y_values - radius)
     mask = distances <= radius
     valid_coordinates = np.column_stack((x_values[mask], y_values[mask]))
@@ -111,7 +109,7 @@ def game_setup() -> None:
     hyperlane_arr = create_hyperlanes(system_arr)
     current_system = random.choice(system_arr)
     current_system.generate()
-    player_fleet = Fleet()
+    player_fleet = Fleet((0, 0))
     player_fleet.ships.append(Capital())
     pygame_run(
         display_window,
@@ -250,10 +248,6 @@ def pygame_run(
     current_view: str,
     player_fleet: object,
 ) -> None:
-    try:
-        pass
-    except:
-        pass
     current_view = "system_view"  # Temp, will be removed when main menu is implemented.
     with open(os.path.join(os.path.dirname(__file__), "save_data.pkl"), "rb") as file:
         (
@@ -264,6 +258,9 @@ def pygame_run(
             player_fleet,
         ) = pickle.load(file)
     while True:
+        if player_fleet.target_position:
+            acceleration = min([ship.acceleration for ship in player_fleet.ships])
+
         if current_view == "main_menu":
             main_menu_mode(manager, current_view)
         elif current_view == "system_view":
@@ -291,23 +288,27 @@ def pygame_run(
                         current_view = "galaxy_view"
                     elif current_view == "galaxy_view":
                         current_view = "system_view"
+                if event.key == pygame.K_s:
+                    # Rewrite this to allow for multiple save files when main menu is implemented.
+                    with open(
+                        os.path.join(os.path.dirname(__file__), "save_data.pkl"), "wb"
+                    ) as file:
+                        pickle.dump(
+                            (
+                                hyperlane_arr,
+                                system_arr,
+                                current_system,
+                                current_view,
+                                player_fleet,
+                            ),
+                            file,
+                        )
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 3 and current_view == "system_view":
                     player_fleet.target_position = pygame.mouse.get_pos()
-        with open(
-            os.path.join(os.path.dirname(__file__), "save_data.pkl"), "wb"
-        ) as file:
-            pickle.dump(
-                (
-                    hyperlane_arr,
-                    system_arr,
-                    current_system,
-                    current_view,
-                    player_fleet,
-                ),
-                file,
-            )
+
         pygame.display.update()
 
 
-game_setup()
+if __name__ == "__main__":
+    game_setup()

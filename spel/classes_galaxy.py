@@ -52,10 +52,7 @@ class System:
             for terrestial_moon in range(terrestial_moons_count):
                 angle = random.uniform(0, 2 * math.pi)
                 hypotenuse = (
-                    planet_object.size**0.5
-                    * MOON_CONSTANT
-                    * (terrestial_moon + 1)
-                    / 2
+                    planet_object.size**0.5 * MOON_CONSTANT * (terrestial_moon + 1) / 2
                     + planet_object.size * 0.5
                 )
                 self.moons.append(
@@ -98,8 +95,11 @@ class System:
                         hypotenuse,
                     )
                 )
-        for jump_point in self.neighboring_systems:
-            self.jump_points.append(Jump_Point())
+        # for jump_point in self.neighboring_systems:
+        #     self.jump_points.append(Jump_Point())
+
+    def __str__(self) -> str:
+        return str(self.__dict__)
 
 
 class Hyperlane:
@@ -109,3 +109,6 @@ class Hyperlane:
         self.endpos = endpos
         self.endposx, self.endposy = endpos
         self.stars = startstar, endstar
+
+    def __str__(self) -> str:
+        return str(self.__dict__)
