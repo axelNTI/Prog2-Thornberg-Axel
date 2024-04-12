@@ -15,6 +15,7 @@ class Star(Celestial_Body):
         super().__init__(position)
         self.colour = colour
         self.size = 50
+        self.resources = {"Energy": random.randint(100, 200)}
 
     def __str__(self) -> str:
         return str(self.__dict__)
@@ -90,6 +91,10 @@ class Gas(Orbital):
                 (221, 180, 126),
             )
         )
+        self.resources = {
+            "Gas": random.randint(50, 150),
+            "Energy": random.randint(10, 150),
+        }
 
     def __str__(self) -> str:
         return str(self.__dict__)
@@ -99,6 +104,11 @@ class Terrestial_Planet(Terrestial):
     def __init__(self, position, orbit, hypotenuse) -> None:
         super().__init__(position, orbit, hypotenuse)
         self.size = random.randint(12, 25)
+        self.resources = {
+            "Energy": random.randint(10, 100),
+            "Minerals": random.randint(10, 100),
+            "Food": random.randint(0, 100),
+        }
 
     def __str__(self) -> str:
         return str(self.__dict__)
@@ -108,6 +118,10 @@ class Terrestial_Moon(Terrestial):
     def __init__(self, position, orbit, hypotenuse) -> None:
         super().__init__(position, orbit, hypotenuse)
         self.size = random.randint(5, 10)
+        self.resources = {
+            "Energy": random.randint(5, 50),
+            "Minerals": random.randint(5, 50),
+        }
 
     def __str__(self) -> str:
         return str(self.__dict__)

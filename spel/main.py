@@ -2,6 +2,7 @@ import pygame_gui
 import pygame
 import random
 import pickle
+import math
 import os
 
 # import numba as nu
@@ -226,12 +227,6 @@ def galaxy_view_mode(
         )
         for object in system_arr
     ]
-    # pygame.draw.circle(
-    #     surface=display_window,
-    #     color=object.colour,
-    #     center=(object.posx + WIDTH / 2, object.posy + HEIGHT / 2),
-    #     radius=intround(object.size * SCALE * 0.5),
-    # )
 
 
 def pygame_run(
@@ -251,32 +246,58 @@ def pygame_run(
     current_view = "system_view"  # Temp, will be removed when main menu is implemented.
     while True:
         if player_fleet.target_position:
+
             player_fleet.acceleration = min(
                 [ship.acceleration for ship in player_fleet.ships]
             )
-            # Get vertical and horizontal distance to target.
+            # Get the distance to the target.
             x_distance = player_fleet.target_posx - player_fleet.posx
             y_distance = player_fleet.target_posy - player_fleet.posy
+
             # Get the angle to the target.
-            angle = np.arctan2(y_distance, x_distance)
+            angle = math.atan2(y_distance, x_distance)
             # Calculate the acceleration in the x and y directions.
-            player_fleet.accx = player_fleet.acceleration * np.cos(angle)
-            player_fleet.accy = player_fleet.acceleration * np.sin(angle)
+            player_fleet.accx = player_fleet.acceleration * math.cos(angle)
+            player_fleet.accy = player_fleet.acceleration * math.sin(angle)
             # Check if the fleet has to decelerate to avoid overshooting the target.
             # Get the distance to the target.
-            distance = np.hypot(x_distance, y_distance)
+            distance = math.hypot(x_distance, y_distance)
             # Calculate the total velocity of the fleet.
-            player_fleet.velocity = np.hypot(player_fleet.velx, player_fleet.vely)
-            if distance < player_fleet.velocity**2 / (2 * player_fleet.acceleration):
-                player_fleet.velx -= player_fleet.accx
-                player_fleet.vely -= player_fleet.accy
-            else:
-                player_fleet.velx += player_fleet.accx
-                player_fleet.vely += player_fleet.accy
+            player_fleet.velocity = math.hypot(player_fleet.velx, player_fleet.vely)
+
+            # Check if the fleet has to decelerate to avoid overshooting the target.
+            if distance < (player_fleet.velocity**2) / (2 * player_fleet.acceleration):
+                player_fleet.accx = -player_fleet.accx
+                player_fleet.accy = -player_fleet.accy
+
+            # Update the velocity of the fleet.
+            player_fleet.velx += player_fleet.accx
+            player_fleet.vely += player_fleet.accy
+
             # Update the position of the fleet.
             player_fleet.posx += player_fleet.velx
             player_fleet.posy += player_fleet.vely
             player_fleet.position = player_fleet.posx, player_fleet.posy
+
+            # Check if the fleet has reached the target.
+            if distance < 5:
+                player_fleet.target_position = None
+                player_fleet.velx = 0
+                player_fleet.vely = 0
+                player_fleet.velocity = 0
+                player_fleet.accx = 0
+                player_fleet.accy = 0
+                player_fleet.acceleration = 0
+                [
+                    print(x)
+                    for object in [
+                    np.hypot(
+                        object.posx - player_fleet.posx, object.posy - player_fleet.posy
+                    )
+                    < object.size * 1.2
+                    for object in current_system.planets + current_system.moons
+                ]]
+
         if current_view == "main_menu":
             main_menu_mode(manager, current_view)
         elif current_view == "system_view":
@@ -321,10 +342,16 @@ def pygame_run(
                         )
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 3 and current_view == "system_view":
-                    target_position = pygame.mouse.get_pos()
-                    player_fleet.target_position = target_position
-                    player_fleet.target_posx, player_fleet.target_posy = target_position
+                    position = pygame.mouse.get_pos()
+                    player_fleet.target_posx = (position[0] - WIDTH / 2) / SCALE
+                    player_fleet.target_posy = (position[1] - HEIGHT / 2) / SCALE
+                    player_fleet.target_position = (
+                        player_fleet.target_posx,
+                        player_fleet.target_posy,
+                    )
+
         pygame.display.update()
+        clock.tick(FRAME_RATE)
 
 
 if __name__ == "__main__":

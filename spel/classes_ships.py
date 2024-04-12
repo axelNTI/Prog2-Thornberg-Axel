@@ -27,17 +27,8 @@ class Ship:
                 (72, 96, 129),
             )
         )
-
-    def __str__(self) -> str:
-        return str(self.__dict__)
-
-
-class Capital(Ship):
-    def __init__(self) -> None:
-        super().__init__(acceleration=5)
-        self.size = 5
-        self.x_offset = 0
-        self.y_offset = 0
+        self.x_offset
+        self.y_offset
 
     def __str__(self) -> str:
         return str(self.__dict__)
@@ -47,3 +38,23 @@ class Capital(Ship):
 
     def get_position_y(self, fleet: Fleet) -> int:
         return fleet.posy + self.y_offset
+
+
+class Capital(Ship):
+    def __init__(self) -> None:
+        super().__init__(acceleration=1)
+        self.size = 5
+        self.strategy = "defensive"
+
+    def __str__(self) -> str:
+        return str(self.__dict__)
+
+
+class Manufactory(Ship):
+    def __init__(self) -> None:
+        super().__init__(acceleration=0.5)
+        self.size = 3
+        self.strategy = "withdrawal"
+
+    def __str__(self) -> str:
+        return str(self.__dict__)
