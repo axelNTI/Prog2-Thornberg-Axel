@@ -28,6 +28,18 @@ from classes_ships import *
 # display_window = pygame.display.set_mode((infoObject9.current_w, infoObject.current_h))
 
 
+def screen_coords_to_game_coords(
+    x: int, y: int, WIDTH: int, HEIGHT: int, SCALE: float
+) -> tuple:
+    return (x - WIDTH / 2) / SCALE, (y - HEIGHT / 2) / SCALE
+
+
+def game_coords_to_screen_coords(
+    x: int, y: int, WIDTH: int, HEIGHT: int, SCALE: float
+) -> tuple:
+    return x * SCALE + WIDTH / 2, y * SCALE + HEIGHT / 2
+
+
 def intround(value: float) -> int:
     return int(round(value, 0))
 
@@ -92,6 +104,11 @@ def create_hyperlanes(system_arr: np.ndarray) -> np.ndarray:
     return hyperlane_arr
 
 
+def recursive_get_hyperlane_jumps(system: object, starting_system: object) -> float:
+    # Get the amount of jumps between the starting system and the current system.
+    raise NotImplementedError
+
+
 def game_setup() -> None:
     SYSTEM_COUNT = 50
     FRAME_RATE = 60
@@ -109,7 +126,7 @@ def game_setup() -> None:
     system_arr = create_systems(SYSTEM_COUNT, RADIUS)
     hyperlane_arr = create_hyperlanes(system_arr)
     current_system = random.choice(system_arr)
-    current_system.generate()
+    current_system.generate(True)
     player_fleet = Fleet((0, 0))
     player_fleet.ships.append(Capital())
     pygame_run(
@@ -188,6 +205,41 @@ def system_view_mode(
         for object in player_fleet.ships
     ]
 
+    # Display the resources of the celestial bodies.
+    for object in [current_system.star] + current_system.planets + current_system.moons:
+        text = pygame.font.SysFont("arial", intround(15 * SCALE)).render(
+            str(object.resources), True, (255, 255, 255)
+        )
+        display_window.blit(
+            text,
+            (
+                intround(SCALE * object.posx + WIDTH / 2),
+                intround(SCALE * object.posy + HEIGHT / 2),
+            ),
+        )
+
+    # Display the resources of the fleet in the top left corner with each resource having its own line.
+    for i, resource in enumerate(player_fleet.resources):
+        display_resource = resource.replace("_", " ")
+        text = pygame.font.SysFont("arial", intround(15 * SCALE)).render(
+            f"{display_resource}: {player_fleet.resources[resource]}",
+            True,
+            (255, 255, 255),
+        )
+        display_window.blit(text, (intround(10 * SCALE), intround(20 * SCALE * i)))
+
+    # Display the target position of the fleet.
+    if player_fleet.target_position:
+        pygame.draw.circle(
+            display_window,
+            (255, 0, 0),
+            (
+                intround(player_fleet.target_posx * SCALE + WIDTH / 2),
+                intround(player_fleet.target_posy * SCALE + HEIGHT / 2),
+            ),
+            intround(5 * SCALE),
+        )
+
 
 def galaxy_view_mode(
     display_window: pygame.surface.Surface,
@@ -244,6 +296,7 @@ def pygame_run(
     player_fleet: object,
 ) -> None:
     current_view = "system_view"  # Temp, will be removed when main menu is implemented.
+    # slow_down = False  # Move to setup.
     while True:
         if player_fleet.target_position:
 
@@ -288,16 +341,20 @@ def pygame_run(
                 player_fleet.accx = 0
                 player_fleet.accy = 0
                 player_fleet.acceleration = 0
-                [
-                    print(x)
-                    for object in [
-                    np.hypot(
-                        object.posx - player_fleet.posx, object.posy - player_fleet.posy
-                    )
-                    < object.size * 1.2
-                    for object in current_system.planets + current_system.moons
-                ]]
-
+        in_orbit = [
+            object
+            for object in [current_system.star]
+            + current_system.planets
+            + current_system.moons
+            if np.hypot(
+                object.posx - player_fleet.posx,
+                object.posy - player_fleet.posy,
+            )
+            < object.size * 1.2
+        ]
+        for object in in_orbit:
+            for resource in object.resources:
+                player_fleet.resources[resource] += object.resources[resource]
         if current_view == "main_menu":
             main_menu_mode(manager, current_view)
         elif current_view == "system_view":
@@ -340,6 +397,11 @@ def pygame_run(
                             ),
                             file,
                         )
+                # if event.key == pygame.K_h:
+                #     # Slow the fleet down to a stop.
+                #     player_fleet.target_position = None
+                #     slow_down = True
+
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 3 and current_view == "system_view":
                     position = pygame.mouse.get_pos()
@@ -350,6 +412,22 @@ def pygame_run(
                         player_fleet.target_posy,
                     )
 
+        # if slow_down:
+        #     # Get direction of the fleet.
+        #     angle = math.atan2(player_fleet.vely, player_fleet.velx)
+        #     # Calculate the acceleration in the x and y directions.
+        #     player_fleet.accx = -player_fleet.acceleration * math.cos(angle)
+        #     player_fleet.accy = -player_fleet.acceleration * math.sin(angle)
+        #     # Update the velocity of the fleet.
+        #     player_fleet.velx += player_fleet.accx
+        #     player_fleet.vely += player_fleet.accy
+        #     # Update the position of the fleet.
+        #     player_fleet.posx += player_fleet.velx
+        #     player_fleet.posy += player_fleet.vely
+        #     player_fleet.position = player_fleet.posx, player_fleet.posy
+        #     # Check if the fleet has reached a stop.
+        #     if player_fleet.velx == 0 and player_fleet.vely == 0:
+        #         slow_down = False
         pygame.display.update()
         clock.tick(FRAME_RATE)
 

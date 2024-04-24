@@ -10,13 +10,27 @@ class Fleet:
         self.target_position = None
         self.target_posx = None
         self.target_posy = None
+        self.resources = {
+            "Energy": 0,
+            "Minerals": 0,
+            "Alloys": 0,
+            "Food": 0,
+            "Consumer_goods": 0,
+            "Volatile_motes": 0,
+            "Exotic_gases": 0,
+            "Rare_crystals": 0,
+            "Living_metal": 0,
+            "Zro": 0,
+            "Dark_matter": 0,
+            "Nanites": 0,
+        }
 
     def __str__(self) -> str:
         return str(self.__dict__)
 
 
 class Ship:
-    def __init__(self, acceleration) -> None:
+    def __init__(self, acceleration, x_offset, y_offset) -> None:
         self.acceleration = acceleration
         self.colour = random.choice(
             (
@@ -27,8 +41,8 @@ class Ship:
                 (72, 96, 129),
             )
         )
-        self.x_offset
-        self.y_offset
+        self.x_offset = x_offset
+        self.y_offset = y_offset
 
     def __str__(self) -> str:
         return str(self.__dict__)
@@ -42,7 +56,7 @@ class Ship:
 
 class Capital(Ship):
     def __init__(self) -> None:
-        super().__init__(acceleration=1)
+        super().__init__(1, 0, 0)
         self.size = 5
         self.strategy = "defensive"
 

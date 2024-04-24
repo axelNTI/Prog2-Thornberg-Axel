@@ -92,7 +92,7 @@ class Gas(Orbital):
             )
         )
         self.resources = {
-            "Gas": random.randint(50, 150),
+            "Exotic_gases": random.randint(50, 150),
             "Energy": random.randint(10, 150),
         }
 

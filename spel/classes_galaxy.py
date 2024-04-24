@@ -30,7 +30,7 @@ class System:
         system.neighboring_systems.append(self)
         system.hyperlanes.append(new_hyperlane)
 
-    def generate(self) -> None:
+    def generate(self, starting_system=False) -> None:
         self.unvisisted = False
         self.star = Star((0, 0), self.colour)
         PLANET_CONSTANT = 500
@@ -97,6 +97,9 @@ class System:
                 )
         # for jump_point in self.neighboring_systems:
         #     self.jump_points.append(Jump_Point())
+        if not starting_system:
+            # Generate possible enemy fleets
+            pass
 
     def __str__(self) -> str:
         return str(self.__dict__)
