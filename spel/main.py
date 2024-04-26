@@ -28,6 +28,45 @@ from classes_ships import *
 # display_window = pygame.display.set_mode((infoObject9.current_w, infoObject.current_h))
 
 
+# Chatgpt (Jag orkade inte räkna ut rocket science):
+def optimal_acceleration(initial_pos, target_pos, initial_vel, scalar_acceleration):
+    initial_pos = np.array(initial_pos)
+    target_pos = np.array(target_pos)
+    initial_vel = np.array(initial_vel)
+    # Step 1: Calculate displacement vector
+    displacement = target_pos - initial_pos
+    displacement_norm = np.linalg.norm(displacement)
+
+    # Step 2: Calculate velocity vector
+    velocity_norm = np.linalg.norm(initial_vel)
+    if velocity_norm == 0:
+        return np.zeros_like(initial_vel)
+    velocity_direction = initial_vel / velocity_norm
+
+    # Step 3: Calculate angle between displacement and velocity vectors
+    cos_theta = np.dot(displacement, initial_vel) / (displacement_norm * velocity_norm)
+
+    # Handle potential edge cases where vectors are collinear or nearly collinear
+    if abs(cos_theta) > 1.0:
+        cos_theta = np.sign(cos_theta) * 1.0  # Clamp to [-1, 1]
+    sin_theta = np.sqrt(1 - cos_theta**2)
+
+    # Step 4: Calculate tangential and radial components of acceleration
+    radial_accel_magnitude = scalar_acceleration * cos_theta
+    radial_accel = radial_accel_magnitude * (displacement / displacement_norm)
+
+    if sin_theta != 0:
+        tangential_accel_magnitude = scalar_acceleration * sin_theta
+        tangential_accel = tangential_accel_magnitude * velocity_direction
+    else:
+        tangential_accel = np.zeros_like(initial_vel)
+
+    # Step 5: Combine components to get optimal acceleration
+    optimal_accel = tangential_accel - radial_accel
+
+    return optimal_accel
+
+
 def screen_coords_to_game_coords(
     x: int, y: int, WIDTH: int, HEIGHT: int, SCALE: float
 ) -> tuple:
@@ -303,34 +342,25 @@ def pygame_run(
             player_fleet.acceleration = min(
                 [ship.acceleration for ship in player_fleet.ships]
             )
-            # Get the distance to the target.
-            x_distance = player_fleet.target_posx - player_fleet.posx
-            y_distance = player_fleet.target_posy - player_fleet.posy
+            player_fleet.accx, player_fleet.accy = optimal_acceleration(
+                player_fleet.position,
+                player_fleet.target_position,
+                player_fleet.velocity,
+                player_fleet.acceleration,
+            )
 
-            # Get the angle to the target.
-            angle = math.atan2(y_distance, x_distance)
-            # Calculate the acceleration in the x and y directions.
-            player_fleet.accx = player_fleet.acceleration * math.cos(angle)
-            player_fleet.accy = player_fleet.acceleration * math.sin(angle)
-            # Check if the fleet has to decelerate to avoid overshooting the target.
-            # Get the distance to the target.
-            distance = math.hypot(x_distance, y_distance)
-            # Calculate the total velocity of the fleet.
-            player_fleet.velocity = math.hypot(player_fleet.velx, player_fleet.vely)
+            print(player_fleet.accx, player_fleet.accy)
 
-            # Check if the fleet has to decelerate to avoid overshooting the target.
-            if distance < (player_fleet.velocity**2) / (2 * player_fleet.acceleration):
-                player_fleet.accx = -player_fleet.accx
-                player_fleet.accy = -player_fleet.accy
-
-            # Update the velocity of the fleet.
             player_fleet.velx += player_fleet.accx
             player_fleet.vely += player_fleet.accy
-
-            # Update the position of the fleet.
             player_fleet.posx += player_fleet.velx
             player_fleet.posy += player_fleet.vely
+
             player_fleet.position = player_fleet.posx, player_fleet.posy
+            distance = np.hypot(
+                player_fleet.posx - player_fleet.target_posx,
+                player_fleet.posy - player_fleet.target_posy,
+            )
 
             # Check if the fleet has reached the target.
             if distance < 5:
